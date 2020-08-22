@@ -1,4 +1,4 @@
-package com.hmdm.control.server;
+package com.hmdm.control.janus.server;
 
 import android.content.Context;
 
@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-public class ServerApiFactory {
+public class JanusServerApiFactory {
     private static JanusServerApi apiInstance;
 
     public static JanusServerApi getApiInstance(Context context) {

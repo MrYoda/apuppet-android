@@ -4,11 +4,14 @@ import android.content.Context;
 import android.provider.Settings;
 import android.text.TextUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
 public class Utils {
 
     public static boolean isAccessibilityPermissionGranted(Context context) {
         int accessibilityEnabled = 0;
-        final String service = context.getPackageName() + "/.GestureDispatchService";
+        final String service = context.getPackageName() + "/com.hmdm.control.GestureDispatchService";
 
         try {
             accessibilityEnabled = Settings.Secure.getInt(
@@ -53,5 +56,20 @@ public class Utils {
 
     public static String generateTransactionId() {
         return randomString(12, true);
+    }
+
+    public static ByteBuffer stringToByteBuffer(String msg) {
+        return ByteBuffer.wrap(msg.getBytes(Charset.defaultCharset()));
+    }
+
+    public static String byteBufferToString(ByteBuffer buffer) {
+        byte[] bytes;
+        if (buffer.hasArray()) {
+            bytes = buffer.array();
+        } else {
+            bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+        }
+        return new String(bytes, Charset.defaultCharset());
     }
 }

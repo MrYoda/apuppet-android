@@ -1,11 +1,11 @@
-package com.hmdm.control.json;
+package com.hmdm.control.janus.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JanusSessionResponse {
+public class JanusResponse {
     private String janus;
     private String transaction;
 
@@ -19,8 +19,15 @@ public class JanusSessionResponse {
         public void setId(String id) {
             this.id = id;
         }
+
+        @Override
+        public String toString() {
+            return "{\"id\":\"" + id + "\"}";
+        }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public class Error {
         private Integer code;
         private String reason;
@@ -39,6 +46,10 @@ public class JanusSessionResponse {
 
         public void setReason(String reason) {
             this.reason = reason;
+        }
+        @Override
+        public String toString() {
+            return "{\"code\":\"" + code + "\",\"reason\":\"" + reason + "\"}";
         }
     }
 
@@ -75,5 +86,11 @@ public class JanusSessionResponse {
 
     public void setError(Error error) {
         this.error = error;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"janus\":\"" + janus + "\",\"transaction\":\"" + transaction + "\",\"data\":" + (data != null ? data.toString() : null) +
+                ",\"error\":" + (error != null ? error.toString() : null) + "}";
     }
 }

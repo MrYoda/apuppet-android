@@ -1,8 +1,6 @@
-package com.hmdm.control.server;
+package com.hmdm.control;
 
 import android.util.Log;
-
-import com.hmdm.control.Const;
 
 import retrofit2.Call;
 import retrofit2.Response;

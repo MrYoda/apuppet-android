@@ -1,4 +1,4 @@
-package com.hmdm.control.json;
+package com.hmdm.control.janus.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -6,20 +6,23 @@ import com.hmdm.control.Utils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JanusSessionRequest {
+public class JanusRequest {
     private String janus;
     private String session_id;
     private String transaction;
-    private String plugin;
 
-    public JanusSessionRequest() {
+    public JanusRequest() {
     }
 
-    public JanusSessionRequest(String action, boolean generateTransactionId) {
+    public JanusRequest(String action, boolean generateTransactionId) {
         janus = action;
         if (generateTransactionId) {
-            transaction = Utils.generateTransactionId();
+            generateTransactionId();
         }
+    }
+
+    public void generateTransactionId() {
+        transaction = Utils.generateTransactionId();
     }
 
     public String getJanus() {
@@ -44,13 +47,5 @@ public class JanusSessionRequest {
 
     public void setTransaction(String transaction) {
         this.transaction = transaction;
-    }
-
-    public String getPlugin() {
-        return plugin;
-    }
-
-    public void setPlugin(String plugin) {
-        this.plugin = plugin;
     }
 }

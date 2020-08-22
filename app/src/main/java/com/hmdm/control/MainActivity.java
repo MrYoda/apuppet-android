@@ -1,7 +1,5 @@
 package com.hmdm.control;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,7 +14,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements SharingApi.EventListener, SharingApi.StateListener {
+import com.hmdm.control.janus.SharingEngineJanus;
+
+public class MainActivity extends AppCompatActivity implements SharingEngineJanus.EventListener, SharingEngineJanus.StateListener {
 
     private ImageView imageViewConnStatus;
     private TextView textViewConnStatus;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
     private Button buttonSharing;
     private TextView textViewExit;
 
-    private SharingApi sharingApi;
+    private SharingEngine sharingEngine;
 
     private SettingsHelper settingsHelper;
 
@@ -36,9 +36,9 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         settingsHelper = SettingsHelper.getInstance(this);
-        sharingApi = SharingApi.getInstance();
-        sharingApi.setEventListener(this);
-        sharingApi.setStateListener(this);
+        sharingEngine = SharingEngineFactory.getSharingEngine();
+        sharingEngine.setEventListener(this);
+        sharingEngine.setStateListener(this);
 
         initUI();
         setDefaultSettings();
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
 
         startService(new Intent(MainActivity.this, GestureDispatchService.class));
 
-        if (!Utils.isAccessibilityPermissionGranted(this)) {
+ /*       if (!Utils.isAccessibilityPermissionGranted(this)) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.accessibility_hint)
                     .setPositiveButton(R.string.continue_button, new DialogInterface.OnClickListener() {
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
                     .setCancelable(false)
                     .create()
                     .show();
-        }
+        }*/
     }
 
     @Override
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
         buttonSharing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int state = sharingApi.getState();
+                int state = sharingEngine.getState();
                 switch (state) {
                     case Const.STATE_DISCONNECTED:
                         connect();
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
         textViewExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharingApi.disconnect(MainActivity.this, new SharingApi.CompletionHandler() {
+                sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
                     @Override
                     public void onComplete(boolean success, String errorReason) {
                         finish();
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
         int[] stateLabels = {R.string.state_disconnected, R.string.state_connecting, R.string.state_connected, R.string.state_sharing, R.string.state_disconnecting};
         int[] stateImages = {R.drawable.ic_disconnected, R.drawable.ic_connecting, R.drawable.ic_connected, R.drawable.ic_sharing, R.drawable.ic_connecting};
 
-        int state = sharingApi.getState();
+        int state = sharingEngine.getState();
         imageViewConnStatus.setImageDrawable(getDrawable(stateImages[state]));
         textViewConnStatus.setText(stateLabels[state]);
 
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
         final String password = Utils.randomString(4, true);
         editTextSessionId.setText(sessionId);
         editTextPassword.setText(password);
-        sharingApi.connect(this, sessionId, password, new SharingApi.CompletionHandler() {
+        sharingEngine.connect(this, sessionId, password, new SharingEngineJanus.CompletionHandler() {
             @Override
             public void onComplete(boolean success, String errorReason) {
                 if (!success) {
@@ -200,6 +200,16 @@ public class MainActivity extends AppCompatActivity implements SharingApi.EventL
 
     private void stopSharing() {
         // TODO
+    }
+
+    @Override
+    public void onStartSharing(String username) {
+        // This event is raised when the admin joins the text room
+    }
+
+    @Override
+    public void onStopSharing() {
+        // This event is raised when the admin leaves the text room
     }
 
     @Override
