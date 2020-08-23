@@ -1,6 +1,7 @@
 package com.hmdm.control.janus;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import com.hmdm.control.Const;
@@ -42,6 +43,8 @@ public class JanusTextRoomPlugin extends JanusPlugin {
 
     private boolean dcResult;
     private Object dcResultLock = new Object();
+
+    private Handler handler = new Handler();
 
     @Override
     public String getName() {
@@ -137,7 +140,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                 Log.d(Const.LOG_TAG, "Remote control agent connected, starting sharing");
                                 String username = jsonObject.optString("username");
                                 if (eventListener != null) {
-                                    eventListener.onStartSharing(username);
+                                    handler.post(() -> eventListener.onStartSharing(username));
                                 }
                             } else if ("message".equalsIgnoreCase(type)) {
                                 if (!checkJoined()) {
@@ -146,7 +149,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                 String text = jsonObject.optString("text");
                                 if (eventListener != null) {
                                     Log.d(Const.LOG_TAG, "Dispatching message: " + text);
-                                    eventListener.onRemoteControlEvent(text);
+                                    handler.post(() -> eventListener.onRemoteControlEvent(text));
                                 }
                             } else if ("leave".equalsIgnoreCase(type)) {
                                 if (!checkJoined()) {
@@ -154,7 +157,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                 }
                                 Log.d(Const.LOG_TAG, "Remote control agent disconnected, stopping sharing");
                                 if (eventListener != null) {
-                                    eventListener.onStopSharing();
+                                    handler.post(() -> eventListener.onStopSharing());
                                 }
                             } else if ("success".equalsIgnoreCase(type)) {
                                 JSONArray list = jsonObject.optJSONArray("list");

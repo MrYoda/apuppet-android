@@ -82,14 +82,11 @@ public class JanusStreamingPlugin extends JanusPlugin {
 
     @Override
     public int destroy() {
-        JanusMessageRequest destroyRequest = new JanusMessageRequest();
-        destroyRequest.setJanus("destroy");
-        destroyRequest.setSession_id(sessionId);
-        destroyRequest.setHandle_id(streamingId);
+        JanusMessageRequest destroyRequest = new JanusMessageRequest("message", sessionId, getHandleId());
         destroyRequest.setBody(new JanusMessageRequest.Body("destroy", streamingId));
         destroyRequest.generateTransactionId();
 
-        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.sendMessage(sessionId, streamingId, destroyRequest), "destroy streaming");
+        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.sendMessage(sessionId, getHandleId(), destroyRequest), "destroy streaming");
         if (response == null) {
             errorReason = "Network error";
             return Const.NETWORK_ERROR;

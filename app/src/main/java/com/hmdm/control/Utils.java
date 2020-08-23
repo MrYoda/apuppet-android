@@ -72,4 +72,14 @@ public class Utils {
         }
         return new String(bytes, Charset.defaultCharset());
     }
+
+    public static String prepareDisplayUrl(String url) {
+        String result = url;
+        // Cut off the port (skipping : at the end of scheme)
+        int pos = url.indexOf(':', 6);
+        if (pos != -1) {
+            result = result.substring(0, pos);
+        }
+        return result;
+    }
 }

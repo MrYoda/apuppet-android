@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:text="@string/translate_audio"
         android:layout_marginRight="@dimen/margin_std"
-        app:layout_constraintRight_toLeftOf="@+id/translate_audio"
+        app:layout_constraintRight_toLeftOf="@+id/server_url"
         app:layout_constraintBaseline_toBaselineOf="@id/translate_audio" />
 
     <CheckBox
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:text="@string/bitrate"
         android:layout_marginRight="@dimen/margin_std"
-        app:layout_constraintRight_toLeftOf="@+id/bitrate"
+        app:layout_constraintRight_toLeftOf="@+id/server_url"
         app:layout_constraintBaseline_toBaselineOf="@id/bitrate" />
 
     <Spinner
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:text="@string/frame_rate"
         android:layout_marginRight="@dimen/margin_std"
-        app:layout_constraintRight_toLeftOf="@+id/bitrate"
+        app:layout_constraintRight_toLeftOf="@+id/server_url"
         app:layout_constraintBaseline_toBaselineOf="@id/frame_rate" />
 
     <Spinner
@@ -82,5 +82,23 @@
         app:layout_constraintTop_toBottomOf="@+id/bitrate"
         app:layout_constraintLeft_toLeftOf="@+id/server_url"
         />
+
+    <TextView
+        android:id="@+id/device_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/device_name"
+        android:layout_marginRight="@dimen/margin_std"
+        app:layout_constraintRight_toLeftOf="@+id/server_url"
+        app:layout_constraintBaseline_toBaselineOf="@id/device_name" />
+
+    <EditText
+        android:id="@+id/device_name"
+        android:layout_width="@dimen/edit_text_width"
+        android:layout_height="wrap_content"
+        android:hint="@string/device_name_hint"
+        android:layout_marginTop="@dimen/margin_std"
+        app:layout_constraintTop_toBottomOf="@+id/frame_rate"
+        app:layout_constraintLeft_toLeftOf="@+id/server_url"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

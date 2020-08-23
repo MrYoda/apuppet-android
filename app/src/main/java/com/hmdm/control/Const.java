@@ -5,6 +5,9 @@ public class Const {
     public static final int DEFAULT_BITRATE = 256000;
     public static final int DEFAULT_FRAME_RATE = 10;
 
+    public static final int REQUEST_SETTINGS = 1000;
+    public static final int RESULT_DIRTY = 1001;
+
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;

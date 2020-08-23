@@ -15,6 +15,10 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class JanusServerApiFactory {
     private static JanusServerApi apiInstance;
 
+    public static void resetApiInstance() {
+        apiInstance = null;
+    }
+
     public static JanusServerApi getApiInstance(Context context) {
         if ( apiInstance == null ) {
             apiInstance = createServerService(SettingsHelper.getInstance(context).getString(SettingsHelper.KEY_SERVER_URL));

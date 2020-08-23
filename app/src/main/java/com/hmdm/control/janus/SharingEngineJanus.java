@@ -21,6 +21,7 @@ public class SharingEngineJanus extends SharingEngine {
     @Override
     public void connect(final Context context, final String sessionId, final String password, final CompletionHandler completionHandler) {
         try {
+            JanusServerApiFactory.resetApiInstance();
             apiInstance = JanusServerApiFactory.getApiInstance(context);
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,6 +42,9 @@ public class SharingEngineJanus extends SharingEngine {
         janusSession = new JanusSession();
         janusSession.init(context);
 
+        // This must be initialized in the main thread because it uses a handler to run commands in UI thread
+        janusTextRoomPlugin = new JanusTextRoomPlugin();
+
         // Start Janus connection flow
         new AsyncTask<Void, Void, Integer>() {
             @Override
@@ -53,7 +57,6 @@ public class SharingEngineJanus extends SharingEngine {
 
                 janusSession.startPolling(context);
 
-                janusTextRoomPlugin = new JanusTextRoomPlugin();
                 janusTextRoomPlugin.init(context);
                 result = janusSession.attachPlugin(janusTextRoomPlugin);
                 if (result != Const.SUCCESS) {
@@ -157,8 +160,8 @@ public class SharingEngineJanus extends SharingEngine {
             protected void onPostExecute(Integer result) {
                 // Not really fair, but it's unclear how to handle destroying errors!
                 setState(Const.STATE_DISCONNECTED);
-                completionHandler.onComplete(result == Const.SUCCESS, errorReason);
                 reset();
+                completionHandler.onComplete(result == Const.SUCCESS, errorReason);
             }
         }.execute();
 

@@ -11,6 +11,7 @@ public class SettingsHelper {
 
     // Data keys
     public static final String KEY_SERVER_URL = "SERVER_URL";
+    public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
     public static final String KEY_TRANSLATE_AUDIO = "TRANSLATE_AUDIO";
     public static final String KEY_BITRATE = "BITRATE";
     public static final String KEY_FRAME_RATE = "FRAME_RATE";

@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/layout_conn_status"
-        app:layout_constraintBottom_toTopOf="@+id/sharing_button"
+        app:layout_constraintBottom_toTopOf="@+id/reconnect"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         >
@@ -91,11 +91,25 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/sharing_button"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:text="@string/start_sharing"
+
+    <TextView
+        android:id="@+id/comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_std"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/reconnect"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/reconnect"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connect"
+        android:textColor="@color/colorAccent"
         app:layout_constraintTop_toBottomOf="@+id/layout_session_data"
         app:layout_constraintBottom_toTopOf="@+id/disconnect_exit"
         app:layout_constraintLeft_toLeftOf="parent"

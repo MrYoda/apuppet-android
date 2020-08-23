@@ -49,6 +49,10 @@ public abstract class SharingEngine {
         this.audio = audio;
     }
 
+    public String getErrorReason() {
+        return errorReason;
+    }
+
     public abstract void connect(final Context context, final String sessionId, final String password, final CompletionHandler completionHandler);
 
     public abstract void disconnect(Context context, CompletionHandler completionHandler);

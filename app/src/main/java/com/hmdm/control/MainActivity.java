@@ -1,11 +1,13 @@
 package com.hmdm.control;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,12 +24,19 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private TextView textViewConnStatus;
     private EditText editTextSessionId;
     private EditText editTextPassword;
-    private Button buttonSharing;
+    private TextView textViewComment;
+    private TextView textViewConnect;
     private TextView textViewExit;
 
     private SharingEngine sharingEngine;
 
     private SettingsHelper settingsHelper;
+
+    private String sessionId;
+    private String password;
+    private String adminName;
+
+    private boolean needReconnect = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
         initUI();
         setDefaultSettings();
-
-        connect();
     }
 
     @Override
@@ -53,9 +60,10 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
         startService(new Intent(MainActivity.this, GestureDispatchService.class));
 
- /*       if (!Utils.isAccessibilityPermissionGranted(this)) {
+        if (!Utils.isAccessibilityPermissionGranted(this)) {
+            textViewConnect.setVisibility(View.INVISIBLE);
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.accessibility_hint)
+                    .setMessage(R.string.accessibility_hint)
                     .setPositiveButton(R.string.continue_button, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -66,7 +74,21 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     .setCancelable(false)
                     .create()
                     .show();
-        }*/
+        } else {
+            if (needReconnect) {
+                // Here we go after changing settings
+                needReconnect = false;
+                if (sharingEngine.getState() != Const.STATE_DISCONNECTED) {
+                    sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> connect());
+                } else {
+                    connect();
+                }
+            } else {
+                if (sharingEngine.getState() == Const.STATE_DISCONNECTED && sharingEngine.getErrorReason() == null) {
+                    connect();
+                }
+            }
+        }
     }
 
     @Override
@@ -91,11 +113,20 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, Const.REQUEST_SETTINGS);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == Const.REQUEST_SETTINGS && resultCode == Const.RESULT_DIRTY) {
+            needReconnect = true;
+        }
     }
 
     private void initUI() {
@@ -103,24 +134,14 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         textViewConnStatus = findViewById(R.id.conn_status);
         editTextSessionId = findViewById(R.id.session_id_edit);
         editTextPassword = findViewById(R.id.password_edit);
-        buttonSharing = findViewById(R.id.sharing_button);
+        textViewComment = findViewById(R.id.comment);
+        textViewConnect = findViewById(R.id.reconnect);
         textViewExit = findViewById(R.id.disconnect_exit);
 
-        buttonSharing.setOnClickListener(new View.OnClickListener() {
+        textViewConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int state = sharingEngine.getState();
-                switch (state) {
-                    case Const.STATE_DISCONNECTED:
-                        connect();
-                        break;
-                    case Const.STATE_CONNECTED:
-                        startSharing();
-                        break;
-                    case Const.STATE_SHARING:
-                        stopSharing();
-                        break;
-                }
+                connect();
             }
         });
 
@@ -142,32 +163,45 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         int[] stateImages = {R.drawable.ic_disconnected, R.drawable.ic_connecting, R.drawable.ic_connected, R.drawable.ic_sharing, R.drawable.ic_connecting};
 
         int state = sharingEngine.getState();
-        imageViewConnStatus.setImageDrawable(getDrawable(stateImages[state]));
-        textViewConnStatus.setText(stateLabels[state]);
+        if (state == Const.STATE_CONNECTED && adminName != null) {
+            imageViewConnStatus.setImageDrawable(getDrawable(stateImages[Const.STATE_SHARING]));
+            textViewConnStatus.setText(stateLabels[Const.STATE_SHARING]);
+        } else {
+            imageViewConnStatus.setImageDrawable(getDrawable(stateImages[state]));
+            textViewConnStatus.setText(stateLabels[state]);
+        }
+        String serverUrl = Utils.prepareDisplayUrl(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL));
 
-        buttonSharing.setEnabled(state != Const.STATE_CONNECTING && state != Const.STATE_DISCONNECTING);
+        textViewConnect.setVisibility(state == Const.STATE_DISCONNECTED ? View.VISIBLE : View.INVISIBLE);
         switch (state) {
             case Const.STATE_DISCONNECTED:
                 editTextSessionId.setText("");
                 editTextPassword.setText("");
-                buttonSharing.setEnabled(true);
-                buttonSharing.setText(R.string.connect);
+                if (sharingEngine.getErrorReason() != null) {
+                    textViewComment.setText(getString(R.string.hint_connection_error, serverUrl));
+                }
                 break;
             case Const.STATE_CONNECTING:
+                textViewComment.setText(getString(R.string.hint_connecting, serverUrl));
+                break;
             case Const.STATE_DISCONNECTING:
-                buttonSharing.setEnabled(false);
+                textViewComment.setText(getString(R.string.hint_disconnecting));
                 break;
             case Const.STATE_CONNECTED:
-                buttonSharing.setEnabled(true);
-                buttonSharing.setText(R.string.start_sharing);
-                break;
-            case Const.STATE_SHARING:
-                buttonSharing.setText(R.string.stop_sharing);
+                editTextSessionId.setText(sessionId);
+                editTextPassword.setText(password);
+                textViewComment.setText(adminName != null ?
+                        getString(R.string.hint_sharing, adminName) :
+                        getString(R.string.hint_connected, serverUrl)
+                        );
                 break;
         }
     }
 
     private void setDefaultSettings() {
+        if (settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME) == null) {
+            settingsHelper.setString(SettingsHelper.KEY_DEVICE_NAME, Build.MANUFACTURER + " " + Build.MODEL);
+        }
         if (settingsHelper.getInt(SettingsHelper.KEY_BITRATE) == 0) {
             settingsHelper.setInt(SettingsHelper.KEY_BITRATE, Const.DEFAULT_BITRATE);
         }
@@ -177,10 +211,9 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     }
 
     private void connect() {
-        String sessionId = Utils.randomString(8, true);
-        final String password = Utils.randomString(4, true);
-        editTextSessionId.setText(sessionId);
-        editTextPassword.setText(password);
+        sessionId = Utils.randomString(8, true);
+        password = Utils.randomString(4, true);
+        sharingEngine.setUsername(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
         sharingEngine.connect(this, sessionId, password, new SharingEngineJanus.CompletionHandler() {
             @Override
             public void onComplete(boolean success, String errorReason) {
@@ -194,22 +227,19 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         });
     }
 
-    private void startSharing() {
-        // TODO: run screenSharer and provide audio and video port to it
-    }
-
-    private void stopSharing() {
-        // TODO
-    }
-
     @Override
-    public void onStartSharing(String username) {
+    public void onStartSharing(String adminName) {
         // This event is raised when the admin joins the text room
+        this.adminName = adminName;
+        updateUI();
     }
 
     @Override
     public void onStopSharing() {
         // This event is raised when the admin leaves the text room
+        adminName = null;
+        updateUI();
+        // TODO: stop screen broadcasting
     }
 
     @Override

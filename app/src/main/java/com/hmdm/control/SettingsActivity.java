@@ -20,6 +20,7 @@ public class SettingsActivity extends AppCompatActivity {
     private CheckBox checkBoxTranslateAudio;
     private Spinner spinnerBitrate;
     private Spinner spinnerFrameRate;
+    private EditText editTextDeviceName;
 
     private SettingsHelper settingsHelper;
 
@@ -38,6 +39,7 @@ public class SettingsActivity extends AppCompatActivity {
         checkBoxTranslateAudio = findViewById(R.id.translate_audio);
         spinnerBitrate = findViewById(R.id.bitrate);
         spinnerFrameRate = findViewById(R.id.frame_rate);
+        editTextDeviceName = findViewById(R.id.device_name);
 
         loadSettings();
 
@@ -49,6 +51,13 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (saveSettings()) {
+            finish();
+        }
     }
 
     @Override
@@ -67,6 +76,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (frameRate >= 0) {
             spinnerFrameRate.setSelection(frameRate);
         }
+        editTextDeviceName.setText(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
     }
 
     private boolean saveSettings() {
@@ -75,11 +85,43 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.enter_correct_url, Toast.LENGTH_LONG).show();
             return false;
         }
+        String deviceName = editTextDeviceName.getText().toString();
+        if (deviceName.trim().equals("")) {
+            Toast.makeText(this, R.string.enter_device_name, Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        if (areSettingsChanged()) {
+            setResult(Const.RESULT_DIRTY);
+        } else {
+            setResult(RESULT_OK);
+        }
+
         settingsHelper.setString(SettingsHelper.KEY_SERVER_URL, serverUrl);
         settingsHelper.setBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO, checkBoxTranslateAudio.isChecked());
         settingsHelper.setInt(SettingsHelper.KEY_BITRATE, bitrates[spinnerBitrate.getSelectedItemPosition()]);
         settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, frame_rates[spinnerFrameRate.getSelectedItemPosition()]);
+        settingsHelper.setString(SettingsHelper.KEY_DEVICE_NAME, deviceName);
         return true;
+    }
+
+    private boolean areSettingsChanged() {
+        if (!editTextServerUrl.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL))) {
+            return true;
+        }
+        if (checkBoxTranslateAudio.isChecked() != settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO)) {
+            return true;
+        }
+        if (bitrates[spinnerBitrate.getSelectedItemPosition()] != settingsHelper.getInt(SettingsHelper.KEY_BITRATE)) {
+            return true;
+        }
+        if (frame_rates[spinnerFrameRate.getSelectedItemPosition()] != settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE)) {
+            return true;
+        }
+        if (!editTextDeviceName.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME))) {
+            return true;
+        }
+        return false;
     }
 
     private int getIndex(int[] array, int value) {

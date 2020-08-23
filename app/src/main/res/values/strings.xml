@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Remote Control</string>
+    <string name="app_name">aPuppet - Remote Control</string>
     <string name="action_settings">Settings</string>
     <string name="back_pressed">Tap Home to hide the screen. To stop screen sharing, open the plugin activity through the "Recents" button.</string>
     <string name="accessibility_service_description">Accessibility service is used to simulate touch screen events for remote control of the device.</string>
@@ -8,9 +8,7 @@
     <string name="state_connected">Connected</string>
     <string name="state_sharing">Sharing</string>
     <string name="state_disconnecting">Disconnecting</string>
-    <string name="connect">CONNECT</string>
-    <string name="start_sharing">START SHARING</string>
-    <string name="stop_sharing">STOP SHARING</string>
+    <string name="connect">Connect</string>
     <string name="disconnect_exit">Disconnect and exit</string>
     <string name="connection_error">Failed to connect to %s: %s</string>
     <string name="session_id">Session ID</string>
@@ -21,8 +19,16 @@
     <string name="bitrate">Bitrate</string>
     <string name="frame_rate">Frame rate</string>
     <string name="enter_correct_url">Please enter a correct server URL starting with http:// or https://</string>
+    <string name="enter_device_name">Please enter a non-empty device name</string>
     <string name="accessibility_hint">This app uses accessibility service to simulate user interface events. The accessibility permissions screen will now open. Please grant accessibility permissions to the "Remote Control" app.</string>
     <string name="continue_button">Continue</string>
+    <string name="device_name">Device name</string>
+    <string name="device_name_hint">E.g. My Device</string>
+    <string name="hint_connection_error">There was an error connecting to %s. Please check your Internet connection and try again.</string>
+    <string name="hint_connecting">Connecting to %s, please wait...</string>
+    <string name="hint_connected">Ready to be remotely controlled. Please send the server URL (%s), session ID, and password to the supervisor.</string>
+    <string name="hint_sharing">A supervisor (%s) is remotely controlling your device!</string>
+    <string name="hint_disconnecting">Gracefully closing the connection, please wait...</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>
