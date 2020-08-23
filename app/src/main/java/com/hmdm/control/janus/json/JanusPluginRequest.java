@@ -8,6 +8,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class JanusPluginRequest extends JanusRequest {
     private String handle_id;
 
+
+    public JanusPluginRequest() {
+    }
+
+    public JanusPluginRequest(String janus, String sessionId, String handleId) {
+        super(janus, true);
+        setSession_id(sessionId);
+        setHandle_id(handleId);
+    }
+
     public String getHandle_id() {
         return handle_id;
     }

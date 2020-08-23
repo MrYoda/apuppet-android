@@ -12,6 +12,7 @@ public abstract class SharingEngine {
     protected String password;
     protected String errorReason;
     protected String username = "Device";
+    protected boolean audio;
 
     public int getState() {
         return state;
@@ -30,6 +31,22 @@ public abstract class SharingEngine {
 
     public void setStateListener(StateListener stateListener) {
         this.stateListener = stateListener;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public boolean isAudio() {
+        return audio;
+    }
+
+    public void setAudio(boolean audio) {
+        this.audio = audio;
     }
 
     public abstract void connect(final Context context, final String sessionId, final String password, final CompletionHandler completionHandler);

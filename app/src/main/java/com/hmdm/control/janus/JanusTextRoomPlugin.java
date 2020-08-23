@@ -8,6 +8,7 @@ import com.hmdm.control.ServerApiHelper;
 import com.hmdm.control.SharingEngine;
 import com.hmdm.control.Utils;
 import com.hmdm.control.janus.json.JanusJsepRequest;
+import com.hmdm.control.janus.json.JanusMessageRequest;
 import com.hmdm.control.janus.json.JanusResponse;
 import com.hmdm.control.janus.json.Jsep;
 
@@ -206,12 +207,8 @@ public class JanusTextRoomPlugin extends JanusPlugin {
 
 
     private JanusJsepRequest createJsepRequest(String requestType) {
-        JanusJsepRequest request = new JanusJsepRequest();
-        request.setJanus("message");
-        request.setSession_id(getSessionId());
-        request.setHandle_id(getHandleId());
-        request.generateTransactionId();
-        request.setBody(new JanusJsepRequest.Body(requestType));
+        JanusJsepRequest request = new JanusJsepRequest("message", getSessionId(), getHandleId());
+        request.setBody(new JanusMessageRequest.Body(requestType, null));
         return request;
     }
 

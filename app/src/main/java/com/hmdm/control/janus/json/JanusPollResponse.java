@@ -7,11 +7,7 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JanusPollResponse implements Serializable {
-    private String janus;
-    private String session_id;
-    private String transaction;
-    private String sender;
+public class JanusPollResponse extends JanusPluginResponse implements Serializable {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -82,38 +78,6 @@ public class JanusPollResponse implements Serializable {
         this.jsep = jsep;
     }
 
-    public String getJanus() {
-        return janus;
-    }
-
-    public void setJanus(String janus) {
-        this.janus = janus;
-    }
-
-    public String getSession_id() {
-        return session_id;
-    }
-
-    public void setSession_id(String session_id) {
-        this.session_id = session_id;
-    }
-
-    public String getTransaction() {
-        return transaction;
-    }
-
-    public void setTransaction(String transaction) {
-        this.transaction = transaction;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
     public PluginData getPlugindata() {
         return plugindata;
     }
@@ -124,7 +88,7 @@ public class JanusPollResponse implements Serializable {
 
     @Override
     public String toString() {
-        return "{\"janus\":\"" + janus + "\",\"session_id\":" + session_id + "\",\"transaction\":\"" + transaction + "\",\"sender\":\"" + sender + "\","
+        return "{\"janus\":\"" + getJanus() + "\",\"session_id\":" + getSession_id() + "\",\"transaction\":\"" + getTransaction() + "\",\"sender\":\"" + getSender() + "\","
                 + "\"plugindata\":" + (plugindata != null ? plugindata.toString() : "null") + ",\"jsep\":\"" + (jsep != null ? jsep.toString() : "null") + "}";
     }
 }

@@ -12,10 +12,6 @@ import com.hmdm.control.janus.server.JanusServerApiFactory;
 public class SharingEngineJanus extends SharingEngine {
     private JanusServerApi apiInstance;
 
-    // Set after attaching to streaming plugin
-    private int audioPort;
-    private int videoPort;
-
     private JanusSession janusSession;
     private JanusTextRoomPlugin janusTextRoomPlugin;
     private JanusStreamingPlugin janusStreamingPlugin;
@@ -108,9 +104,17 @@ public class SharingEngineJanus extends SharingEngine {
                     return result;
                 }
 
-                // TODO: streaming
+                // Streaming
+                janusStreamingPlugin = new JanusStreamingPlugin();
+                janusStreamingPlugin.init(context);
+                result = janusSession.attachPlugin(janusStreamingPlugin);
+                if (result != Const.SUCCESS) {
+                    return result;
+                }
 
-                return Const.SUCCESS;
+                result = janusStreamingPlugin.create(sessionId, password, isAudio());
+
+                return result;
             }
 
             @Override
@@ -161,20 +165,26 @@ public class SharingEngineJanus extends SharingEngine {
     }
 
     private void reset() {
-        audioPort = 0;
-        videoPort = 0;
         sessionId = null;
         password = null;
         janusSession = null;
+        janusStreamingPlugin = null;
+        janusTextRoomPlugin = null;
     }
 
     @Override
     public int getAudioPort() {
-        return audioPort;
+        if (janusStreamingPlugin != null) {
+            return janusStreamingPlugin.getAudioPort();
+        }
+        return 0;
     }
 
     @Override
     public int getVideoPort() {
-        return videoPort;
+        if (janusStreamingPlugin != null) {
+            return janusStreamingPlugin.getVideoPort();
+        }
+        return 0;
     }
 }
