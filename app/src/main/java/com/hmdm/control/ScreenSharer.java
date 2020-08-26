@@ -5,17 +5,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
-import android.media.MediaRecorder;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.os.Environment;
+import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
-import android.view.Display;
 import android.view.Surface;
 
+import net.majorkernelpanic.streaming.rtp.AbstractPacketizer;
+import net.majorkernelpanic.streaming.rtp.H264Packetizer;
+import net.majorkernelpanic.streaming.rtp.MediaCodecInputStream;
+
 import java.io.IOException;
+import java.net.InetAddress;
 
 public class ScreenSharer {
     private int mScreenDensity;
@@ -27,8 +33,20 @@ public class ScreenSharer {
     private VirtualDisplay mVirtualDisplay;
     private MediaProjection.Callback mMediaProjectionCallback;
 
-    private MediaRecorder mMediaRecorder;
+    private MediaCodec mMediaCodec;
+    private Surface mInputSurface;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    private AbstractPacketizer mPacketizer;
+
+    private boolean mRecordAudio;
+    private String mRtpHost;
+    private int mRtpAudioPort;
+    private int mRtpVideoPort;
+    private int mVideoFrameRate;
+    private int mVideoBitrate;
+
+    private static final String MIME_TYPE_VIDEO = "video/avc";
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -37,20 +55,49 @@ public class ScreenSharer {
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
-    public final int REQUEST_CODE_SCREEN_SHARE = 1000;
-
     public ScreenSharer(Activity activity) {
-        Display display = activity.getWindowManager(). getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenDensity = metrics.densityDpi;
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
 
-        mMediaRecorder = new MediaRecorder();
+        try {
+            mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE_VIDEO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mPacketizer = new H264Packetizer();
 
         mProjectionManager = (MediaProjectionManager)activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+    }
 
+    public void configure(boolean audio, int videoFrameRate, int videoBitRate, String host, int audioPort, int videoPort) {
+        mRecordAudio = audio;
+        mVideoFrameRate = videoFrameRate;
+        mVideoBitrate = videoBitRate;
+        mRtpAudioPort = audioPort;
+        mRtpVideoPort = videoPort;
+
+        new AsyncTask<Void,Void,Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    // Here I set RTCP port to videoPort+1 (conventional), but RTCP is not used, and 0 or -1 cause errors in libstreaming
+                    mPacketizer.setDestination(InetAddress.getByName(host), videoPort, videoPort + 1);
+                    // TEST
+                    //mPacketizer.setDestination(InetAddress.getByName("192.168.1.127"), 1234, 1235);
+                    mPacketizer.setTimeToLive(64);
+
+                } catch (Exception e) {
+                    // We should not be here because configure() is called after successful connection to the host
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+        }.execute();
     }
 
     public void setMediaProjectionCallback(MediaProjection.Callback callback) {
@@ -59,9 +106,17 @@ public class ScreenSharer {
 
     public void onSharePermissionGranted(Activity activity, int resultCode, Intent data) {
         mMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
-        mMediaProjection.registerCallback(mMediaProjectionCallback, null);
+        mMediaProjection.registerCallback(new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                super.onStop();
+                stopShare(activity);
+                mMediaProjectionCallback.onStop();
+            }
+        }, null);
         mVirtualDisplay = createVirtualDisplay();
-        mMediaRecorder.start();
+        mMediaCodec.start();
+        startSending();
     }
 
     public boolean startShare(Activity activity) {
@@ -73,10 +128,14 @@ public class ScreenSharer {
     }
 
     public void stopShare(Activity activity) {
-        mMediaRecorder.stop();
-        mMediaRecorder.reset();
-        Log.v(Const.LOG_TAG, "Stopping Recording");
-        stopScreenSharing();
+        try {
+            mPacketizer.stop();
+            mMediaCodec.stop();
+            Log.v(Const.LOG_TAG, "Stopping Recording");
+            stopScreenSharing();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void destroy() {
@@ -85,42 +144,37 @@ public class ScreenSharer {
 
     private void shareScreen(Activity activity) {
         if (mMediaProjection == null) {
-            activity.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_SHARE);
+            activity.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), Const.REQUEST_SCREEN_SHARE);
             return;
         }
         mVirtualDisplay = createVirtualDisplay();
-        mMediaRecorder.start();
+        mMediaCodec.start();
+        startSending();
+    }
+
+    private void startSending() {
+        MediaCodecInputStream mcis = new MediaCodecInputStream(mMediaCodec);
+        mPacketizer.setInputStream(mcis);
+        mcis.setH264Packetizer((H264Packetizer) mPacketizer);
+        mPacketizer.start();
     }
 
     private VirtualDisplay createVirtualDisplay() {
         return mMediaProjection.createVirtualDisplay("MainActivity",
                 mScreenWidth, mScreenHeight, mScreenDensity,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                mMediaRecorder.getSurface(), null /*Callbacks*/, null
+                mInputSurface, null /*Callbacks*/, null
                 /*Handler*/);
     }
 
     private boolean initRecorder(Activity activity) {
-        try {
-            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mMediaRecorder.setOutputFile(Environment
-                    .getExternalStoragePublicDirectory(Environment
-                            .DIRECTORY_DOWNLOADS) + "/video.mp4");
-            mMediaRecorder.setVideoSize(mScreenWidth, mScreenHeight);
-            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            mMediaRecorder.setVideoEncodingBitRate(256 * 1000);
-            mMediaRecorder.setVideoFrameRate(10);
-            int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-            int orientation = ORIENTATIONS.get(rotation + 90);
-            mMediaRecorder.setOrientationHint(orientation);
-            mMediaRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE_VIDEO, mScreenWidth, mScreenHeight);
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mVideoBitrate);
+        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoFrameRate);
+        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+        mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        mInputSurface = mMediaCodec.createInputSurface();
         return true;
     }
 
@@ -128,6 +182,7 @@ public class ScreenSharer {
         if (mVirtualDisplay == null) {
             return;
         }
+        mPacketizer.stop();
         mVirtualDisplay.release();
         //mMediaRecorder.release(); //If used: mMediaRecorder object cannot
         // be reused again

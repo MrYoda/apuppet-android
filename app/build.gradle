@@ -7,7 +7,11 @@ android {
     defaultConfig {
         applicationId "com.hmdm.control"
         minSdkVersion 24
-        targetSdkVersion 29
+        // Setting targetSdkVersion to 29 throws SecurityException when getting MediaProjection in
+        // ScreenSharer.java, mMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
+        // java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        // The workaround is to set targetSdkVersion to 28, but it certainly must be fixed in the future
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 

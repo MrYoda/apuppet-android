@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:text="@string/translate_audio"
         android:layout_marginRight="@dimen/margin_std"
+        android:visibility="gone"
         app:layout_constraintRight_toLeftOf="@+id/server_url"
         app:layout_constraintBaseline_toBaselineOf="@id/translate_audio" />
 
@@ -41,6 +42,7 @@
         android:layout_width="@dimen/edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/server_url"
         app:layout_constraintLeft_toLeftOf="@+id/server_url"/>
 

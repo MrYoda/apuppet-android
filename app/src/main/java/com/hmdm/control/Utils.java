@@ -4,6 +4,8 @@ import android.content.Context;
 import android.provider.Settings;
 import android.text.TextUtils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -81,5 +83,16 @@ public class Utils {
             result = result.substring(0, pos);
         }
         return result;
+    }
+
+    public static String getRtpUrl(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            return url.getHost();
+        } catch (MalformedURLException e) {
+            // We must not be here because RTP URL is setup after successful connection
+            e.printStackTrace();
+        }
+        return null;
     }
 }

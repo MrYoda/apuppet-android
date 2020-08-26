@@ -48,9 +48,11 @@ public class JanusStreamingPlugin extends JanusPlugin {
         body.setId(streamingId);
         body.setName(streamingId);
         body.setPin(password);
-        body.setAudioport(0);
-        body.setAudiopt(111);
-        body.setAudiortpmap("opus/48000/2");
+        if (audio) {
+            body.setAudioport(0);
+            body.setAudiopt(111);
+            body.setAudiortpmap("opus/48000/2");
+        }
         body.setVideoport(0);
         body.setVideopt(100);
         body.setVideortpmap("H264/90000");

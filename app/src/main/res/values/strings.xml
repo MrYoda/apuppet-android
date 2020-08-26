@@ -29,6 +29,10 @@
     <string name="hint_connected">Ready to be remotely controlled. Please send the server URL (%s), session ID, and password to the supervisor.</string>
     <string name="hint_sharing">A supervisor (%s) is remotely controlling your device!</string>
     <string name="hint_disconnecting">Gracefully closing the connection, please wait...</string>
+    <string name="settings_unavailable">You cannot change settings when your device is controlled. Please stop the remote controlling first.</string>
+    <string name="audio_permission_request">Please allow this app to record audio so your voice can be translated to the supervisor.</string>
+    <string name="cancel">Cancel</string>
+    <string name="screen_cast_denied">Session aborted because the screen cast permission not granted. Please allow screen sharing to enable the remote control session!</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

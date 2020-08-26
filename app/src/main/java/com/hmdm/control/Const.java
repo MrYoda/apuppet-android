@@ -6,7 +6,9 @@ public class Const {
     public static final int DEFAULT_FRAME_RATE = 10;
 
     public static final int REQUEST_SETTINGS = 1000;
-    public static final int RESULT_DIRTY = 1001;
+    public static final int REQUEST_PERMISSION_AUDIO = 1001;
+    public static final int REQUEST_SCREEN_SHARE = 1002;
+    public static final int RESULT_DIRTY = 2000;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;

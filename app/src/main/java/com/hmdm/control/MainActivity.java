@@ -3,6 +3,7 @@ package com.hmdm.control;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.projection.MediaProjection;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
     private boolean needReconnect = false;
 
+    private ScreenSharer screenSharer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         sharingEngine.setEventListener(this);
         sharingEngine.setStateListener(this);
 
+        screenSharer = new ScreenSharer(this);
+
         initUI();
         setDefaultSettings();
     }
@@ -59,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         updateUI();
 
         startService(new Intent(MainActivity.this, GestureDispatchService.class));
-
         if (!Utils.isAccessibilityPermissionGranted(this)) {
             textViewConnect.setVisibility(View.INVISIBLE);
             new AlertDialog.Builder(this)
@@ -110,8 +114,11 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            if (adminName != null) {
+                Toast.makeText(this, R.string.settings_unavailable, Toast.LENGTH_LONG).show();
+                return true;
+            }
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, Const.REQUEST_SETTINGS);
             return true;
@@ -126,6 +133,22 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
         if (requestCode == Const.REQUEST_SETTINGS && resultCode == Const.RESULT_DIRTY) {
             needReconnect = true;
+        } else if (requestCode == Const.REQUEST_SCREEN_SHARE) {
+            if (resultCode != RESULT_OK) {
+                Toast.makeText(this, R.string.screen_cast_denied, Toast.LENGTH_LONG).show();
+                adminName = null;
+                updateUI();
+            } else {
+                screenSharer.setMediaProjectionCallback(new MediaProjection.Callback() {
+                    @Override
+                    public void onStop() {
+                        super.onStop();
+                        adminName = null;
+                        updateUI();
+                    }
+                });
+                screenSharer.onSharePermissionGranted(this, resultCode, data);
+            }
         }
     }
 
@@ -148,6 +171,9 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         textViewExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (adminName != null) {
+                    screenSharer.stopShare(MainActivity.this);
+                }
                 sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
                     @Override
                     public void onComplete(boolean success, String errorReason) {
@@ -232,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin joins the text room
         this.adminName = adminName;
         updateUI();
+        screenSharer.startShare(this);
     }
 
     @Override
@@ -239,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin leaves the text room
         adminName = null;
         updateUI();
-        // TODO: stop screen broadcasting
+        screenSharer.stopShare(this);
     }
 
     @Override
@@ -252,5 +279,14 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     @Override
     public void onSharingApiStateChanged(int state) {
         updateUI();
+        if (state == Const.STATE_CONNECTED) {
+            screenSharer.configure(settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO),
+                    settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE),
+                    settingsHelper.getInt(SettingsHelper.KEY_BITRATE),
+                    Utils.getRtpUrl(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL)),
+                    sharingEngine.getAudioPort(),
+                    sharingEngine.getVideoPort()
+                    );
+        }
     }
 }
