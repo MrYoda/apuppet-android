@@ -62,6 +62,12 @@ public class ScreenSharer {
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
 
+        // Adjust translated screencast size for phones with high screen resolutions
+        while (mScreenWidth > Const.MAX_SHARED_SCREEN_WIDTH) {
+            mScreenWidth /= 2;
+            mScreenHeight /= 2;
+        }
+
         try {
             mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE_VIDEO);
         } catch (IOException e) {
@@ -87,7 +93,7 @@ public class ScreenSharer {
                     // Here I set RTCP port to videoPort+1 (conventional), but RTCP is not used, and 0 or -1 cause errors in libstreaming
                     mPacketizer.setDestination(InetAddress.getByName(host), videoPort, videoPort + 1);
                     // TEST
-                    //mPacketizer.setDestination(InetAddress.getByName("192.168.1.127"), 1234, 1235);
+                    // mPacketizer.setDestination(InetAddress.getByName("192.168.1.127"), 1234, 1235);
                     mPacketizer.setTimeToLive(64);
 
                 } catch (Exception e) {
