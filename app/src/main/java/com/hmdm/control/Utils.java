@@ -77,6 +77,9 @@ public class Utils {
 
     public static String prepareDisplayUrl(String url) {
         String result = url;
+        if (url == null) {
+            return "";
+        }
         // Cut off the port (skipping : at the end of scheme)
         int pos = url.indexOf(':', 6);
         if (pos != -1) {
