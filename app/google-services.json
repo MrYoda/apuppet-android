@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "956141955273",
+    "firebase_url": "https://apuppet-1c985.firebaseio.com",
+    "project_id": "apuppet-1c985",
+    "storage_bucket": "apuppet-1c985.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956141955273:android:fd46eea5feaa1a7f458518",
+        "android_client_info": {
+          "package_name": "com.hmdm.control"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956141955273-t6hek3imjdh1msk81cpe8jepgtvgjcm4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcJo80uoW3sFF8UI3WzRMBjbsPd2ThEgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956141955273-t6hek3imjdh1msk81cpe8jepgtvgjcm4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

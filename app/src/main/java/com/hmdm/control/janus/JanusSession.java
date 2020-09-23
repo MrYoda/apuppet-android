@@ -108,7 +108,12 @@ public class JanusSession {
     public void stopPolling(Context context) {
         Intent intent = new Intent(context, JanusSessionPollService.class);
         context.stopService(intent);
-        context.unregisterReceiver(pollServiceReceiver);
+        try {
+            context.unregisterReceiver(pollServiceReceiver);
+        } catch (Exception e) {
+            // IllegalArgumentException: receiver not registered
+            e.printStackTrace();
+        }
     }
 
     // Must be run in the background thread

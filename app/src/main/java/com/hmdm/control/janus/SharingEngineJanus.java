@@ -139,7 +139,9 @@ public class SharingEngineJanus extends SharingEngine {
         errorReason = null;
         setState(Const.STATE_DISCONNECTING);
 
-        janusSession.stopPolling(context);
+        if (janusSession != null) {
+            janusSession.stopPolling(context);
+        }
 
         new AsyncTask<Void, Void, Integer>() {
             @Override
