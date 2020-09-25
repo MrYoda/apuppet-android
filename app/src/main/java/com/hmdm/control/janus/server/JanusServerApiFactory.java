@@ -9,6 +9,7 @@ import com.hmdm.control.SettingsHelper;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -31,16 +32,20 @@ public class JanusServerApiFactory {
     }
 
     private static Retrofit.Builder createBuilder(String baseUrl ) {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         Retrofit.Builder builder = new Retrofit.Builder();
 
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().
+                    addInterceptor(logging).
                     connectTimeout( Const.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS ).
                     readTimeout( Const.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS ).
                     writeTimeout( Const.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS );
         builder.client(clientBuilder.build());
 
-        builder.baseUrl( baseUrl )
-                .addConverterFactory( JacksonConverterFactory.create( new ObjectMapper()) );
+        builder.baseUrl(baseUrl)
+                .addConverterFactory(JacksonConverterFactory.create(new ObjectMapper()));
 
         return builder;
     }

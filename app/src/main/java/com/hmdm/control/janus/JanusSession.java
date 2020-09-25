@@ -70,7 +70,7 @@ public class JanusSession {
             sessionId = response.body().getData().getId();
         } else {
             errorReason = "Server error";
-            Log.w(Const.LOG_TAG, "Wrong server response: " + response.body().toString());
+            Log.w(Const.LOG_TAG, "Wrong server response: " + response.code());
             return Const.SERVER_ERROR;
         }
         Log.i(Const.LOG_TAG, "Created Janus session, id=" + sessionId);

@@ -29,6 +29,10 @@ public class SettingsActivity extends AppCompatActivity {
     private Spinner spinnerFrameRate;
     private EditText editTextDeviceName;
 
+    // For test purposes!
+    private EditText editTextTestSrcIp;
+    private EditText editTextTestDstIp;
+
     private SettingsHelper settingsHelper;
 
     @Override
@@ -47,6 +51,10 @@ public class SettingsActivity extends AppCompatActivity {
         spinnerBitrate = findViewById(R.id.bitrate);
         spinnerFrameRate = findViewById(R.id.frame_rate);
         editTextDeviceName = findViewById(R.id.device_name);
+
+        editTextTestSrcIp = findViewById(R.id.test_src_ip);
+        editTextTestDstIp = findViewById(R.id.test_dst_ip);
+        editTextTestSrcIp.setText(Utils.getLocalIpAddress(this));
 
         checkBoxTranslateAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -129,6 +137,7 @@ public class SettingsActivity extends AppCompatActivity {
             spinnerFrameRate.setSelection(frameRate);
         }
         editTextDeviceName.setText(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
+        editTextTestDstIp.setText(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP));
     }
 
     private boolean saveSettings() {
@@ -154,6 +163,7 @@ public class SettingsActivity extends AppCompatActivity {
         settingsHelper.setInt(SettingsHelper.KEY_BITRATE, bitrates[spinnerBitrate.getSelectedItemPosition()]);
         settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, frame_rates[spinnerFrameRate.getSelectedItemPosition()]);
         settingsHelper.setString(SettingsHelper.KEY_DEVICE_NAME, deviceName);
+        settingsHelper.setString(SettingsHelper.KEY_TEST_DST_IP, editTextTestDstIp.getText().toString());
         return true;
     }
 
@@ -171,6 +181,9 @@ public class SettingsActivity extends AppCompatActivity {
             return true;
         }
         if (!editTextDeviceName.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME))) {
+            return true;
+        }
+        if (!editTextTestDstIp.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP))) {
             return true;
         }
         return false;

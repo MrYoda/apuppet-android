@@ -15,6 +15,7 @@ public class SettingsHelper {
     public static final String KEY_TRANSLATE_AUDIO = "TRANSLATE_AUDIO";
     public static final String KEY_BITRATE = "BITRATE";
     public static final String KEY_FRAME_RATE = "FRAME_RATE";
+    public static final String KEY_TEST_DST_IP = "DST_IP";
 
     private SharedPreferences sharedPreferences;
 

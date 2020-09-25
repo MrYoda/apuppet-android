@@ -34,4 +34,6 @@ public class Const {
 
     public static final String JANUS_PLUGIN_TEXTROOM = "janus.plugin.textroom";
     public static final String JANUS_PLUGIN_STREAMING = "janus.plugin.streaming";
+
+    public static final int TEST_RTP_PORT = 1234;
 }

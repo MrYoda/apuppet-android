@@ -24,6 +24,9 @@
     <string name="continue_button">Continue</string>
     <string name="device_name">Device name</string>
     <string name="device_name_hint">E.g. My Device</string>
+    <string name="src_ip">Device IP</string>
+    <string name="dst_ip">Target IP</string>
+    <string name="dst_ip_hint">For testing only</string>
     <string name="hint_connection_error">There was an error connecting to %s. Please check your Internet connection and try again.</string>
     <string name="hint_connecting">Connecting to %s, please wait...</string>
     <string name="hint_connected">Ready to be remotely controlled. Please send the server URL (%s), session ID, and password to the supervisor.</string>
@@ -33,6 +36,7 @@
     <string name="audio_permission_request">Please allow this app to record audio so your voice can be translated to the supervisor.</string>
     <string name="cancel">Cancel</string>
     <string name="screen_cast_denied">Session aborted because the screen cast permission not granted. Please allow screen sharing to enable the remote control session!</string>
+    <string name="sharing_error">Attempt to share the screen is failed! Looks like the app is not compatible with your device, sorry for that!</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

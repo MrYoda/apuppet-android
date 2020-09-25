@@ -14,8 +14,8 @@ android {
         // java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
         // The workaround is to set targetSdkVersion to 28, but it certainly must be fixed in the future
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.03"
+        versionCode 5
+        versionName "1.05"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,6 +46,7 @@ dependencies {
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.0'
 
     // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.4'

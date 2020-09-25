@@ -7,6 +7,8 @@
     <!-- reserved -->
 <!--    <uses-permission android:name="android.permission.RECORD_AUDIO"/> -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- For test purposes only! -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <application
         android:allowBackup="true"

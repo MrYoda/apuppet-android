@@ -258,7 +258,9 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin joins the text room
         this.adminName = adminName;
         updateUI();
-        screenSharer.startShare(this);
+        if (!screenSharer.startShare(this)) {
+            Toast.makeText(this, R.string.sharing_error, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -280,12 +282,22 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     public void onSharingApiStateChanged(int state) {
         updateUI();
         if (state == Const.STATE_CONNECTED) {
+            String rtpHost = Utils.getRtpUrl(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL));
+            int rtpAudioPort = sharingEngine.getAudioPort();
+            int rtpVideoPort = sharingEngine.getVideoPort();
+            String testDstIp = settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP);
+            if (testDstIp != null && !testDstIp.trim().equals("")) {
+                rtpHost = testDstIp;
+                rtpVideoPort = Const.TEST_RTP_PORT;
+                Toast.makeText(this, "Test mode: sending stream to " + rtpHost + ":" + rtpVideoPort, Toast.LENGTH_LONG).show();
+            }
+
             screenSharer.configure(settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO),
                     settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE),
                     settingsHelper.getInt(SettingsHelper.KEY_BITRATE),
-                    Utils.getRtpUrl(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL)),
-                    sharingEngine.getAudioPort(),
-                    sharingEngine.getVideoPort()
+                    rtpHost,
+                    rtpAudioPort,
+                    rtpVideoPort
                     );
         }
     }

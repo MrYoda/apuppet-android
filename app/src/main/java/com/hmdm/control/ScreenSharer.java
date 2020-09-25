@@ -68,6 +68,12 @@ public class ScreenSharer {
             mScreenHeight /= 2;
         }
 
+        Log.i(Const.LOG_TAG, "screenWidth=" + mScreenWidth + ", screenHeight=" + mScreenHeight);
+        // Workaround against the codec bug: https://stackoverflow.com/questions/36915383/what-does-error-code-1010-in-android-mediacodec-mean
+        // Making height and width divisible by 2
+        mScreenHeight = mScreenHeight & 0xFFFE;
+        mScreenWidth = mScreenWidth & 0xFFFE;
+
         try {
             mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE_VIDEO);
         } catch (IOException e) {
@@ -179,7 +185,16 @@ public class ScreenSharer {
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoFrameRate);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
-        mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        // This method call may throw CodecException!
+        try {
+            mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        } catch (Exception e) {
+            Log.e(Const.LOG_TAG, "Failed to configure codec with parameters: screenWidth=" + mScreenWidth +
+                    ", screenHeight=" + mScreenHeight + ", bitrate=" + mVideoBitrate + ", frameRate=" + mVideoFrameRate +
+                    ", colorFormat=" + MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface + ", frameInterval=1");
+            e.printStackTrace();
+            return false;
+        }
         mInputSurface = mMediaCodec.createInputSurface();
         return true;
     }

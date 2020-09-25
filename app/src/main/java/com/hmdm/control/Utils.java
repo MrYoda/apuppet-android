@@ -1,13 +1,17 @@
 package com.hmdm.control;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+
+import static android.content.Context.WIFI_SERVICE;
 
 public class Utils {
 
@@ -97,5 +101,10 @@ public class Utils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getLocalIpAddress(Context context) {
+        WifiManager wm = (WifiManager) context.getSystemService(WIFI_SERVICE);
+        return Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
     }
 }
