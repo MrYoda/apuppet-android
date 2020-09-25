@@ -16,6 +16,7 @@ public class SettingsHelper {
     public static final String KEY_BITRATE = "BITRATE";
     public static final String KEY_FRAME_RATE = "FRAME_RATE";
     public static final String KEY_TEST_DST_IP = "DST_IP";
+    public static final String KEY_VIDEO_SCALE = "VIDEO_SCALE";
 
     private SharedPreferences sharedPreferences;
 
@@ -48,6 +49,10 @@ public class SettingsHelper {
         return sharedPreferences.getLong(key, 0);
     }
 
+    public float getFloat(String key) {
+        return sharedPreferences.getFloat(key, 0);
+    }
+
     public Set<String> getStringSet(String key) {
         return sharedPreferences.getStringSet(key, null);
     }
@@ -66,6 +71,10 @@ public class SettingsHelper {
 
     public void setLong(String key, long value) {
         sharedPreferences.edit().putLong(key, value).commit();
+    }
+
+    public void setFloat(String key, float value) {
+        sharedPreferences.edit().putFloat(key, value).commit();
     }
 
     public void setStringSet(String key, Set<String> value) {

@@ -63,12 +63,17 @@ public class ScreenSharer {
         mScreenHeight = metrics.heightPixels;
 
         // Adjust translated screencast size for phones with high screen resolutions
-        while (mScreenWidth > Const.MAX_SHARED_SCREEN_WIDTH) {
-            mScreenWidth /= 2;
-            mScreenHeight /= 2;
+        if (mScreenWidth > Const.MAX_SHARED_SCREEN_WIDTH || mScreenHeight > Const.MAX_SHARED_SCREEN_HEIGHT) {
+            float widthScale = (float)mScreenWidth / Const.MAX_SHARED_SCREEN_WIDTH;
+            float heightScale = (float)mScreenHeight / Const.MAX_SHARED_SCREEN_HEIGHT;
+            float maxScale = widthScale > heightScale ? widthScale : heightScale;
+            mScreenWidth /= maxScale;
+            mScreenHeight /= maxScale;
         }
 
-        Log.i(Const.LOG_TAG, "screenWidth=" + mScreenWidth + ", screenHeight=" + mScreenHeight);
+        float videoScale = (float)mScreenWidth / metrics.widthPixels;
+        SettingsHelper.getInstance(activity).setFloat(SettingsHelper.KEY_VIDEO_SCALE, videoScale);
+        Log.i(Const.LOG_TAG, "screenWidth=" + mScreenWidth + ", screenHeight=" + mScreenHeight + ", scale=" + videoScale);
         // Workaround against the codec bug: https://stackoverflow.com/questions/36915383/what-does-error-code-1010-in-android-mediacodec-mean
         // Making height and width divisible by 2
         mScreenHeight = mScreenHeight & 0xFFFE;

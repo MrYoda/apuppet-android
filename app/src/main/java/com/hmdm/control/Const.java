@@ -11,6 +11,7 @@ public class Const {
     public static final int RESULT_DIRTY = 2000;
 
     public static final int MAX_SHARED_SCREEN_WIDTH = 600;
+    public static final int MAX_SHARED_SCREEN_HEIGHT = 1000;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;

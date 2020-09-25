@@ -28,6 +28,10 @@ public class GestureDispatchService extends AccessibilityService {
     }
 
     private void processMessage(String message) {
+        float scale = SettingsHelper.getInstance(this).getFloat(SettingsHelper.KEY_VIDEO_SCALE);
+        if (scale == 0) {
+            scale = 1;
+        }
         String[] parts = message.split(",");
         if (parts.length == 0) {
             // Empty message?
@@ -41,6 +45,10 @@ public class GestureDispatchService extends AccessibilityService {
             try {
                 int x = Integer.parseInt(parts[1]);
                 int y = Integer.parseInt(parts[2]);
+                if (scale != 1) {
+                    x = (int)(x / scale);
+                    y = (int)(y / scale);
+                }
                 int duration = Integer.parseInt(parts[3]);
                 simulateGesture(x, y, null, null, duration);
             } catch (Exception e) {
@@ -56,6 +64,11 @@ public class GestureDispatchService extends AccessibilityService {
                 int y1 = Integer.parseInt(parts[2]);
                 int x2 = Integer.parseInt(parts[3]);
                 int y2 = Integer.parseInt(parts[4]);
+                if (scale != 1) {
+                    x1 = (int)(x1 / scale);
+                    y1 = (int)(y1 / scale);
+                    x2 = (int)(x2 / scale);
+                    y2 = (int)(y2 / scale);                }
                 int duration = Integer.parseInt(parts[5]);
                 simulateGesture(x1, y1, x2, y2, duration);
             } catch (Exception e) {
