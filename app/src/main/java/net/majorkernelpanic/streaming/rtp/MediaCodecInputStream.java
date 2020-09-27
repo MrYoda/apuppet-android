@@ -83,7 +83,8 @@ public class MediaCodecInputStream extends InputStream {
 
 						ByteBuffer spsBuffer = mMediaFormat.getByteBuffer("csd-0");
 						ByteBuffer ppsBuffer = mMediaFormat.getByteBuffer("csd-1");
-						// Skip 4 bytes at the beginning (magic!)
+						// Real data are preceded by \x00\x00\x00\x01, skip this prefix
+                        // https://developer.android.com/reference/android/media/MediaCodec
 						spsBuffer.position(4);
 						ppsBuffer.position(4);
 						byte[] sps = new byte[spsBuffer.remaining()];
