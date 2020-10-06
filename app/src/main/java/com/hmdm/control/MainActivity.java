@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
         screenSharer = new ScreenSharer(this);
 
+        sharingEngine.setScreenWidth(screenSharer.getScreenWidth());
+        sharingEngine.setScreenHeight(screenSharer.getScreenHeight());
+
         initUI();
         setDefaultSettings();
     }
@@ -79,6 +82,13 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     .create()
                     .show();
         } else {
+            if (settingsHelper.getString(SettingsHelper.KEY_SERVER_URL) == null) {
+                // Not configured yet
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, Const.REQUEST_SETTINGS);
+                return;
+            }
+
             if (needReconnect) {
                 // Here we go after changing settings
                 needReconnect = false;

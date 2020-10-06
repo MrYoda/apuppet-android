@@ -13,6 +13,8 @@ public abstract class SharingEngine {
     protected String errorReason;
     protected String username = "Device";
     protected boolean audio;
+    protected int screenWidth;
+    protected int screenHeight;
 
     public int getState() {
         return state;
@@ -31,6 +33,14 @@ public abstract class SharingEngine {
 
     public void setStateListener(StateListener stateListener) {
         this.stateListener = stateListener;
+    }
+
+    public void setScreenWidth(int screenWidth) {
+        this.screenWidth = screenWidth;
+    }
+
+    public void setScreenHeight(int screenHeight) {
+        this.screenHeight = screenHeight;
     }
 
     public String getUsername() {

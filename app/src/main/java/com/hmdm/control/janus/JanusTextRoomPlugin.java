@@ -404,8 +404,8 @@ public class JanusTextRoomPlugin extends JanusPlugin {
         return Const.SUCCESS;
     }
 
-    public int joinRoom(String username) {
-        String joinMessage = "{\"textroom\":\"join\",\"room\":\"" + roomId + "\",\"username\":\"" + username + "\",\"display\":\"" + username +
+    public int joinRoom(String username, String displayName) {
+        String joinMessage = "{\"textroom\":\"join\",\"room\":\"" + roomId + "\",\"username\":\"" + username + "\",\"display\":\"" + displayName +
                 "\",\"pin\":\"" + password + "\", \"transaction\":\"" + Utils.generateTransactionId() + "\"}";
 
         sendToDataChannel(joinMessage);
@@ -423,6 +423,27 @@ public class JanusTextRoomPlugin extends JanusPlugin {
             }
         }
         joined = true;
+        return Const.SUCCESS;
+    }
+
+    public int sendMessage(String message) {
+        String sendCommand = "{\"textroom\":\"message\",\"room\":\"" + roomId + "\",\"text\":\"" + message + "\",\"ack\":true," +
+                "\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
+
+        sendToDataChannel(sendCommand);
+        synchronized (dcResultLock) {
+            try {
+                dcResultLock.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                errorReason = "Interrupted";
+                return Const.INTERNAL_ERROR;
+            }
+            if (!dcResult) {
+                errorReason = "Failed to send a message to room";
+                return Const.SERVER_ERROR;
+            }
+        }
         return Const.SUCCESS;
     }
 

@@ -14,8 +14,8 @@ android {
         // java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
         // The workaround is to set targetSdkVersion to 28, but it certainly must be fixed in the future
         targetSdkVersion 28
-        versionCode 6
-        versionName "1.06"
+        versionCode 7
+        versionName "1.07"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

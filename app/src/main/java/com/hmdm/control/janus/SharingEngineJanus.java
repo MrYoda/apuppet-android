@@ -65,12 +65,35 @@ public class SharingEngineJanus extends SharingEngine {
 
                 // The successful flow is continued after creating a data channel
                 janusTextRoomPlugin.createPeerConnection((success, errorReason) -> {
-                    if (!success) {
-                        handler.post(() -> completionHandler.onComplete(false, errorReason));
-                    } else {
-                        dataChannelCreated(context, completionHandler);
-                    }
-                }, eventListener);
+                            if (!success) {
+                                handler.post(() -> completionHandler.onComplete(false, errorReason));
+                            } else {
+                                dataChannelCreated(context, completionHandler);
+                            }
+                        }, new EventListener() {
+                            @Override
+                            public void onStartSharing(String username) {
+                                // Send screen resolution before starting sharing
+                                janusTextRoomPlugin.sendMessage(screenResolutionMessage());
+                                if (eventListener != null) {
+                                    eventListener.onStartSharing(username);
+                                }
+                            }
+
+                            @Override
+                            public void onStopSharing() {
+                                if (eventListener != null) {
+                                    eventListener.onStopSharing();
+                                }
+                            }
+
+                            @Override
+                            public void onRemoteControlEvent(String event) {
+                                if (eventListener != null) {
+                                    eventListener.onRemoteControlEvent(event);
+                                }
+                            }
+                        });
 
                 // Completion handler is needed here to handle errors
                 janusTextRoomPlugin.setupRtcSession((success, errorReason) -> {
@@ -102,7 +125,7 @@ public class SharingEngineJanus extends SharingEngine {
                     return result;
                 }
 
-                result = janusTextRoomPlugin.joinRoom(username);
+                result = janusTextRoomPlugin.joinRoom("device:" + username, username);
                 if (result != Const.SUCCESS) {
                     return result;
                 }
@@ -191,5 +214,9 @@ public class SharingEngineJanus extends SharingEngine {
             return janusStreamingPlugin.getVideoPort();
         }
         return 0;
+    }
+
+    private String screenResolutionMessage() {
+        return "streamingVideoResolution," + screenWidth + "," + screenHeight;
     }
 }

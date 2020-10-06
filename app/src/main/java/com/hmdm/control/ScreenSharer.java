@@ -159,6 +159,14 @@ public class ScreenSharer {
         destroyMediaProjection();
     }
 
+    public int getScreenWidth() {
+        return mScreenWidth;
+    }
+
+    public int getScreenHeight() {
+        return mScreenHeight;
+    }
+
     private void shareScreen(Activity activity) {
         if (mMediaProjection == null) {
             activity.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), Const.REQUEST_SCREEN_SHARE);
