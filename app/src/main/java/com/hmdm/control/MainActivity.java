@@ -1,11 +1,15 @@
 package com.hmdm.control;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.projection.MediaProjection;
+import android.content.IntentFilter;
+import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.hmdm.control.janus.SharingEngineJanus;
 
@@ -39,7 +44,26 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
     private boolean needReconnect = false;
 
-    private ScreenSharer screenSharer;
+    private MediaProjectionManager projectionManager;
+
+    private BroadcastReceiver mSharingServiceReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_STOP)) {
+                adminName = null;
+                updateUI();
+            } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_FAILED)) {
+                String message = intent.getStringExtra(Const.EXTRA_MESSAGE);
+                if (message != null) {
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                }
+                adminName = null;
+                updateUI();
+            } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED)) {
+                startActivityForResult(projectionManager.createScreenCaptureIntent(), Const.REQUEST_SCREEN_SHARE);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +76,21 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         sharingEngine.setEventListener(this);
         sharingEngine.setStateListener(this);
 
-        screenSharer = new ScreenSharer(this);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        float videoScale = ScreenSharingHelper.adjustScreenMetrics(metrics);
+        settingsHelper.setFloat(SettingsHelper.KEY_VIDEO_SCALE, videoScale);
+        ScreenSharingHelper.setScreenMetrics(this, metrics.widthPixels, metrics.heightPixels, metrics.densityDpi);
 
-        sharingEngine.setScreenWidth(screenSharer.getScreenWidth());
-        sharingEngine.setScreenHeight(screenSharer.getScreenHeight());
+        sharingEngine.setScreenWidth(metrics.widthPixels);
+        sharingEngine.setScreenHeight(metrics.heightPixels);
+
+        IntentFilter intentFilter = new IntentFilter(Const.ACTION_SCREEN_SHARING_STOP);
+        intentFilter.addAction(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED);
+        intentFilter.addAction(Const.ACTION_SCREEN_SHARING_FAILED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mSharingServiceReceiver, intentFilter);
+
+        projectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
         initUI();
         setDefaultSettings();
@@ -106,6 +141,12 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     }
 
     @Override
+    public void onDestroy() {
+        unregisterReceiver(mSharingServiceReceiver);
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
         Toast.makeText(this, R.string.back_pressed, Toast.LENGTH_LONG).show();
     }
@@ -149,15 +190,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 adminName = null;
                 updateUI();
             } else {
-                screenSharer.setMediaProjectionCallback(new MediaProjection.Callback() {
-                    @Override
-                    public void onStop() {
-                        super.onStop();
-                        adminName = null;
-                        updateUI();
-                    }
-                });
-                screenSharer.onSharePermissionGranted(this, resultCode, data);
+                ScreenSharingHelper.startSharing(this, resultCode, data);
             }
         }
     }
@@ -182,11 +215,13 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             @Override
             public void onClick(View v) {
                 if (adminName != null) {
-                    screenSharer.stopShare(MainActivity.this);
+                    ScreenSharingHelper.stopSharing(MainActivity.this);
                 }
                 sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
                     @Override
                     public void onComplete(boolean success, String errorReason) {
+                        Intent intent = new Intent(MainActivity.this, ScreenSharingService.class);
+                        stopService(intent);
                         finish();
                     }
                 });
@@ -268,9 +303,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin joins the text room
         this.adminName = adminName;
         updateUI();
-        if (!screenSharer.startShare(this)) {
-            Toast.makeText(this, R.string.sharing_error, Toast.LENGTH_LONG).show();
-        }
+        ScreenSharingHelper.requestSharing(this);
     }
 
     @Override
@@ -278,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin leaves the text room
         adminName = null;
         updateUI();
-        screenSharer.stopShare(this);
+        ScreenSharingHelper.stopSharing(this);
     }
 
     @Override
@@ -302,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 Toast.makeText(this, "Test mode: sending stream to " + rtpHost + ":" + rtpVideoPort, Toast.LENGTH_LONG).show();
             }
 
-            screenSharer.configure(settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO),
+            ScreenSharingHelper.configure(this, settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO),
                     settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE),
                     settingsHelper.getInt(SettingsHelper.KEY_BITRATE),
                     rtpHost,

@@ -48,6 +48,10 @@
 
         <service android:name=".janus.JanusSessionPollService"/>
 
+        <service android:name=".ScreenSharingService"
+            android:foregroundServiceType="mediaProjection"
+            />
+
     </application>
 
 </manifest>
