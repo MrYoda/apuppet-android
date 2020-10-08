@@ -74,6 +74,7 @@ public class ScreenSharingService extends Service {
     public static final String ATTR_VIDEO_PORT = "videoPort";
     public static final String ATTR_RESULT_CODE = "resultCode";
     public static final String ATTR_DATA = "data";
+    public static final String ATTR_DESTROY_MEDIA_PROJECTION = "destroyMediaProjection";
 
     @Nullable
     @Override
@@ -83,11 +84,6 @@ public class ScreenSharingService extends Service {
 
     @Override
     public void onCreate() {
-        try {
-            mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE_VIDEO);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         mPacketizer = new H264Packetizer();
         mProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startAsForeground();
@@ -145,7 +141,8 @@ public class ScreenSharingService extends Service {
             startSharing(resultCode, data);
 
         } else if (action.equals(ACTION_STOP_SHARING)) {
-            stopSharing();
+            boolean destroyMediaProjection = intent.getBooleanExtra(ATTR_DESTROY_MEDIA_PROJECTION, false);
+            stopSharing(destroyMediaProjection);
         }
 
         return Service.START_STICKY;
@@ -204,7 +201,7 @@ public class ScreenSharingService extends Service {
             @Override
             public void onStop() {
                 super.onStop();
-                stopSharing();
+                stopSharing(false);
                 LocalBroadcastManager.getInstance(ScreenSharingService.this).sendBroadcast(new Intent(Const.ACTION_SCREEN_SHARING_STOP));
             }
         };
@@ -215,26 +212,27 @@ public class ScreenSharingService extends Service {
 
     }
 
-    public void stopSharing() {
+    public void stopSharing(boolean destroyMediaProjection) {
         try {
             mPacketizer.stop();
             mMediaCodec.stop();
             Log.v(Const.LOG_TAG, "Stopping Recording");
-            stopScreenSharing();
+            stopScreenSharing(destroyMediaProjection);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void stopScreenSharing() {
+    private void stopScreenSharing(boolean destroyMediaProjection) {
         if (mVirtualDisplay == null) {
             return;
         }
         mPacketizer.stop();
         mVirtualDisplay.release();
-        //mMediaRecorder.release(); //If used: mMediaRecorder object cannot
-        // be reused again
-        destroyMediaProjection();
+        mMediaCodec.release();
+        if (destroyMediaProjection) {
+            destroyMediaProjection();
+        }
     }
 
     private void destroyMediaProjection() {
@@ -263,6 +261,13 @@ public class ScreenSharingService extends Service {
     }
 
     private boolean initRecorder() {
+        try {
+            mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE_VIDEO);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
         MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE_VIDEO, mScreenWidth, mScreenHeight);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mVideoBitrate);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoFrameRate);

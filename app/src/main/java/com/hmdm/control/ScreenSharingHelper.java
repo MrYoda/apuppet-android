@@ -85,9 +85,10 @@ public class ScreenSharingHelper {
         executeCommand(activity, intent);
     }
 
-    public static void stopSharing(Activity activity) {
+    public static void stopSharing(Activity activity, boolean finalStop) {
         Intent intent = new Intent(activity, ScreenSharingService.class);
         intent.setAction(ScreenSharingService.ACTION_STOP_SHARING);
+        intent.putExtra(ScreenSharingService.ATTR_DESTROY_MEDIA_PROJECTION, finalStop);
         executeCommand(activity, intent);
     }
 

@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             public void onClick(View v) {
                 if (adminName != null) {
                     notifySharingStop();
-                    ScreenSharingHelper.stopSharing(MainActivity.this);
+                    ScreenSharingHelper.stopSharing(MainActivity.this, true);
                 }
                 sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
                     @Override
@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         notifySharingStop();
         adminName = null;
         updateUI();
-        ScreenSharingHelper.stopSharing(this);
+        ScreenSharingHelper.stopSharing(this, false);
     }
 
     @Override
