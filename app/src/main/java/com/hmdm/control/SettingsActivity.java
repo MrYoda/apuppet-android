@@ -5,11 +5,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Spinner spinnerBitrate;
     private Spinner spinnerFrameRate;
     private EditText editTextDeviceName;
+    private CheckBox checkBoxNotifySharing;
 
     // For test purposes!
     private EditText editTextTestSrcIp;
@@ -51,42 +53,59 @@ public class SettingsActivity extends AppCompatActivity {
         spinnerBitrate = findViewById(R.id.bitrate);
         spinnerFrameRate = findViewById(R.id.frame_rate);
         editTextDeviceName = findViewById(R.id.device_name);
+        checkBoxNotifySharing = findViewById(R.id.notify_sharing);
 
         editTextTestSrcIp = findViewById(R.id.test_src_ip);
         editTextTestDstIp = findViewById(R.id.test_dst_ip);
         editTextTestSrcIp.setText(Utils.getLocalIpAddress(this));
 
-        checkBoxTranslateAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    if (ContextCompat.checkSelfPermission(SettingsActivity.this, Manifest.permission.RECORD_AUDIO) !=
-                            PackageManager.PERMISSION_GRANTED) {
-                        checkBoxTranslateAudio.setChecked(false);
-                        if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
-                            new AlertDialog.Builder(SettingsActivity.this)
-                                    .setMessage(R.string.audio_permission_request)
-                                    .setPositiveButton(R.string.continue_button, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
-                                                    Const.REQUEST_PERMISSION_AUDIO);
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                        }
-                                    })
-                                    .setCancelable(false)
-                                    .create()
-                                    .show();
-                        } else {
-                            // You can directly ask for the permission.
-                            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
-                                    Const.REQUEST_PERMISSION_AUDIO);
-                        }
+        checkBoxTranslateAudio.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if (ContextCompat.checkSelfPermission(SettingsActivity.this, Manifest.permission.RECORD_AUDIO) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    checkBoxTranslateAudio.setChecked(false);
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+                        new AlertDialog.Builder(SettingsActivity.this)
+                                .setMessage(R.string.audio_permission_request)
+                                .setPositiveButton(R.string.continue_button, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                                                Const.REQUEST_PERMISSION_AUDIO);
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .setCancelable(false)
+                                .create()
+                                .show();
+                    } else {
+                        // You can directly ask for the permission.
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                                Const.REQUEST_PERMISSION_AUDIO);
                     }
+                }
+            }
+        });
+
+        checkBoxNotifySharing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if (!Settings.canDrawOverlays(this)) {
+                    checkBoxNotifySharing.setChecked(false);
+                    new AlertDialog.Builder(this)
+                            .setMessage(R.string.overlay_hint)
+                            .setPositiveButton(R.string.continue_button, (dialog, which) -> {
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        Uri.parse("package:" + getPackageName()));
+                                startActivityForResult(intent, Const.REQUEST_PERMISSION_OVERLAY);
+                            })
+                            .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                            .setCancelable(false)
+                            .create()
+                            .show();
                 }
             }
         });
@@ -117,6 +136,8 @@ public class SettingsActivity extends AppCompatActivity {
         if (requestCode == Const.REQUEST_PERMISSION_AUDIO) {
             checkBoxTranslateAudio.setChecked(ContextCompat.checkSelfPermission(SettingsActivity.this, Manifest.permission.RECORD_AUDIO) ==
                     PackageManager.PERMISSION_GRANTED);
+        } else if (requestCode == Const.REQUEST_PERMISSION_OVERLAY) {
+            checkBoxNotifySharing.setChecked(Settings.canDrawOverlays(this));
         }
     }
 
@@ -164,6 +185,7 @@ public class SettingsActivity extends AppCompatActivity {
         settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, frame_rates[spinnerFrameRate.getSelectedItemPosition()]);
         settingsHelper.setString(SettingsHelper.KEY_DEVICE_NAME, deviceName);
         settingsHelper.setString(SettingsHelper.KEY_TEST_DST_IP, editTextTestDstIp.getText().toString());
+        settingsHelper.setBoolean(SettingsHelper.KEY_NOTIFY_SHARING, checkBoxNotifySharing.isChecked());
         return true;
     }
 

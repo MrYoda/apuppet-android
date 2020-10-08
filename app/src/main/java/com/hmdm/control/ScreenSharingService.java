@@ -119,32 +119,33 @@ public class ScreenSharingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null || intent.getAction() == null) {
+            return Service.START_STICKY;
+        }
         String action = intent.getAction();
-        if (action != null) {
-            if (action.equals(ACTION_SET_METRICS)) {
-                mScreenWidth = intent.getIntExtra(ATTR_SCREEN_WIDTH, 0);
-                mScreenHeight = intent.getIntExtra(ATTR_SCREEN_HEIGHT, 0);
-                mScreenDensity = intent.getIntExtra(ATTR_SCREEN_DENSITY, 0);
+        if (action.equals(ACTION_SET_METRICS)) {
+            mScreenWidth = intent.getIntExtra(ATTR_SCREEN_WIDTH, 0);
+            mScreenHeight = intent.getIntExtra(ATTR_SCREEN_HEIGHT, 0);
+            mScreenDensity = intent.getIntExtra(ATTR_SCREEN_DENSITY, 0);
 
-            } else if (action.equals(ACTION_CONFIGURE)) {
-                configure(intent.getBooleanExtra(ATTR_AUDIO, false),
-                        intent.getIntExtra(ATTR_FRAME_RATE, 0),
-                        intent.getIntExtra(ATTR_BITRATE, 0),
-                        intent.getStringExtra(ATTR_HOST),
-                        intent.getIntExtra(ATTR_AUDIO_PORT, 0),
-                        intent.getIntExtra(ATTR_VIDEO_PORT, 0));
+        } else if (action.equals(ACTION_CONFIGURE)) {
+            configure(intent.getBooleanExtra(ATTR_AUDIO, false),
+                    intent.getIntExtra(ATTR_FRAME_RATE, 0),
+                    intent.getIntExtra(ATTR_BITRATE, 0),
+                    intent.getStringExtra(ATTR_HOST),
+                    intent.getIntExtra(ATTR_AUDIO_PORT, 0),
+                    intent.getIntExtra(ATTR_VIDEO_PORT, 0));
 
-            } else if (action.equals(ACTION_REQUEST_SHARING)) {
-                requestSharing();
+        } else if (action.equals(ACTION_REQUEST_SHARING)) {
+            requestSharing();
 
-            } else if (action.equals(ACTION_START_SHARING)) {
-                int resultCode = intent.getIntExtra(ATTR_RESULT_CODE, 0);
-                Intent data = intent.getParcelableExtra(ATTR_DATA);
-                startSharing(resultCode, data);
+        } else if (action.equals(ACTION_START_SHARING)) {
+            int resultCode = intent.getIntExtra(ATTR_RESULT_CODE, 0);
+            Intent data = intent.getParcelableExtra(ATTR_DATA);
+            startSharing(resultCode, data);
 
-            } else if (action.equals(ACTION_STOP_SHARING)) {
-                stopSharing();
-            }
+        } else if (action.equals(ACTION_STOP_SHARING)) {
+            stopSharing();
         }
 
         return Service.START_STICKY;

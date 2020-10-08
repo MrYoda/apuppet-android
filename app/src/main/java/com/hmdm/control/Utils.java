@@ -1,10 +1,16 @@
 package com.hmdm.control;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.Formatter;
+import android.view.WindowManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -106,5 +112,33 @@ public class Utils {
     public static String getLocalIpAddress(Context context) {
         WifiManager wm = (WifiManager) context.getSystemService(WIFI_SERVICE);
         return Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+    }
+
+    public static int OverlayWindowType() {
+        // https://stackoverflow.com/questions/45867533/system-alert-window-permission-on-api-26-not-working-as-expected-permission-den
+        if (  Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+            return WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            return WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        }
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public static void lockDeviceRotation(Activity activity, boolean value) {
+        if (value) {
+            int currentOrientation = activity.getResources().getConfiguration().orientation;
+            if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            } else {
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+            }
+        } else {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+            } else {
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+            }
+        }
     }
 }

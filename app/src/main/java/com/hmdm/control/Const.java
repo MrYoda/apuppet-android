@@ -9,6 +9,7 @@ public class Const {
     public static final int REQUEST_PERMISSION_AUDIO = 1001;
     public static final int REQUEST_SCREEN_SHARE = 1002;
     public static final int REQUEST_FROM_NOTIFICATION = 1003;
+    public static final int REQUEST_PERMISSION_OVERLAY = 1004;
     public static final int RESULT_DIRTY = 2000;
 
     public static final int MAX_SHARED_SCREEN_WIDTH = 800;

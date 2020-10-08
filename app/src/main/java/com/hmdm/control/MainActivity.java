@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.PixelFormat;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +37,14 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private TextView textViewComment;
     private TextView textViewConnect;
     private TextView textViewExit;
+
+    private ImageView overlayDot;
+    private Handler handler;
+    private int overlayDotAlpha;
+    private int overlayDotDirection = 1;
+
+    private static final int OVERLAY_DOT_ANIMATION_INCREMENT = 20;
+    private static final int OVERLAY_DOT_ANIMATION_DELAY = 200;
 
     private SharingEngine sharingEngine;
 
@@ -61,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 notifySharingStart();
 
             } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_STOP)) {
+                notifySharingStop();
                 adminName = null;
                 updateUI();
 
@@ -162,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     @Override
     public void onDestroy() {
         try {
-            unregisterReceiver(mSharingServiceReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mSharingServiceReceiver);
         } catch (Exception e) {
         }
         super.onDestroy();
@@ -251,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             @Override
             public void onClick(View v) {
                 if (adminName != null) {
+                    notifySharingStop();
                     ScreenSharingHelper.stopSharing(MainActivity.this);
                 }
                 sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
@@ -345,6 +358,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     @Override
     public void onStopSharing() {
         // This event is raised when the admin leaves the text room
+        notifySharingStop();
         adminName = null;
         updateUI();
         ScreenSharingHelper.stopSharing(this);
@@ -381,19 +395,83 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         }
     }
 
-    private void notifySharingStart() {
-        final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                .setMessage(R.string.notification_text)
-                .setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss())
-                .create();
-        dialog.show();
-        new Handler().postDelayed(() -> {
-            if (dialog != null && dialog.isShowing()) {
-                try {
-                    dialog.dismiss();
-                } catch (Exception e) {
-                }
+    private Runnable overlayDotRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (overlayDotDirection == 0) {
+                return;
             }
-        }, 3000);
+            overlayDotAlpha += OVERLAY_DOT_ANIMATION_INCREMENT * overlayDotDirection;
+            if (overlayDotAlpha > 255) {
+                overlayDotAlpha = 255;
+                overlayDotDirection = -overlayDotDirection;
+            }
+            if (overlayDotAlpha < 128) {
+                overlayDotAlpha = 128;
+                overlayDotDirection = -overlayDotDirection;
+            }
+            overlayDot.setImageAlpha(overlayDotAlpha);
+            handler.postDelayed(overlayDotRunnable, OVERLAY_DOT_ANIMATION_DELAY);
+        }
+    };
+
+    private void notifySharingStart() {
+        if (settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING)) {
+            // Show a flashing dot
+            Utils.lockDeviceRotation(this, true);
+            overlayDot = createOverlayDot();
+            overlayDotAlpha = 0;
+            overlayDotDirection = 1;
+            handler = new Handler();
+            handler.postDelayed(overlayDotRunnable, OVERLAY_DOT_ANIMATION_DELAY);
+
+        } else {
+            // Just show some dialog to trigger the traffic
+            final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(R.string.notification_text)
+                    .setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss())
+                    .create();
+            dialog.show();
+            new Handler().postDelayed(() -> {
+                if (dialog != null && dialog.isShowing()) {
+                    try {
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                    }
+                }
+            }, 3000);
+        }
+    }
+
+    private void notifySharingStop() {
+        if (settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING)) {
+            overlayDotDirection = 0;
+            if (overlayDot != null) {
+                WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                wm.removeView(overlayDot);
+                overlayDot = null;
+            }
+            Utils.lockDeviceRotation(this, false);
+        }
+    }
+
+    public ImageView createOverlayDot() {
+        int size = getResources().getDimensionPixelOffset(R.dimen.overlay_dot_size);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(size, size,
+                Utils.OverlayWindowType(),
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        |WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                        |WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+        params.x = getResources().getDimensionPixelOffset(R.dimen.overlay_dot_offset);
+        params.y = getResources().getDimensionPixelOffset(R.dimen.overlay_dot_offset);
+
+        ImageView view = new ImageView(this);
+        view.setImageResource(R.drawable.flash_dot);
+        view.setImageAlpha(0);
+        WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        wm.addView(view, params);
+        return view;
     }
 }

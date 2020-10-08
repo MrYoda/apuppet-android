@@ -20,7 +20,7 @@
     <string name="frame_rate">Frame rate</string>
     <string name="enter_correct_url">Please enter a correct server URL starting with http:// or https://</string>
     <string name="enter_device_name">Please enter a non-empty device name</string>
-    <string name="accessibility_hint">This app uses accessibility service to simulate user interface events. The accessibility permissions screen will now open. Please grant accessibility permissions to the "Remote Control" app.</string>
+    <string name="accessibility_hint">This app uses accessibility service to simulate user interface events. The accessibility permissions screen will now open. Please grant accessibility permissions to the "aPuppet" app.</string>
     <string name="continue_button">Continue</string>
     <string name="device_name">Device name</string>
     <string name="device_name_hint">E.g. My Device</string>
@@ -39,6 +39,8 @@
     <string name="sharing_error">Attempt to share the screen is failed! Looks like the app is not compatible with your device, sorry for that!</string>
     <string name="notification_text">Your device is remotely controlled!</string>
     <string name="ok">OK</string>
+    <string name="notify_sharing">Flash when\n sharing</string>
+    <string name="overlay_hint">To show a flashing dot when the device is controlled, the app needs to draw overlays. Please click "Continue" and grant this permission to the "aPuppet" app.</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

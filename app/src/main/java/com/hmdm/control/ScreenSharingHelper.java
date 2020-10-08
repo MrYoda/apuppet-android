@@ -3,7 +3,6 @@ package com.hmdm.control;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -38,7 +37,6 @@ public class ScreenSharingHelper {
 
     // getDefaultDisplay() excludes status bar and nav bar, so we need to get the full screen size
     public static void getRealScreenSize(Activity activity, DisplayMetrics metrics) {
-        int x, y, orientation = activity.getResources().getConfiguration().orientation;
         WindowManager wm = ((WindowManager)
                 activity.getSystemService(Context.WINDOW_SERVICE));
         Display display = wm.getDefaultDisplay();
@@ -48,16 +46,8 @@ public class ScreenSharingHelper {
 
         Point screenSize = new Point();
         display.getRealSize(screenSize);
-        x = screenSize.x;
-        y = screenSize.y;
-
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.widthPixels = x;
-            metrics.heightPixels = y;
-        } else {
-            metrics.widthPixels = y;
-            metrics.heightPixels = x;
-        }
+        metrics.widthPixels = screenSize.x;
+        metrics.heightPixels = screenSize.y;
     }
 
     public static void setScreenMetrics(Activity activity, int screenWidth, int screenHeight, int screenDensity) {

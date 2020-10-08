@@ -17,6 +17,7 @@ public class SettingsHelper {
     public static final String KEY_FRAME_RATE = "FRAME_RATE";
     public static final String KEY_TEST_DST_IP = "DST_IP";
     public static final String KEY_VIDEO_SCALE = "VIDEO_SCALE";
+    public static final String KEY_NOTIFY_SHARING = "NOTIFY_SHARING";
 
     private SharedPreferences sharedPreferences;
 
