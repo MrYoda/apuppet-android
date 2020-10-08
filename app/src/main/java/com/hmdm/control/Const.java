@@ -8,10 +8,11 @@ public class Const {
     public static final int REQUEST_SETTINGS = 1000;
     public static final int REQUEST_PERMISSION_AUDIO = 1001;
     public static final int REQUEST_SCREEN_SHARE = 1002;
+    public static final int REQUEST_FROM_NOTIFICATION = 1003;
     public static final int RESULT_DIRTY = 2000;
 
-    public static final int MAX_SHARED_SCREEN_WIDTH = 600;
-    public static final int MAX_SHARED_SCREEN_HEIGHT = 1000;
+    public static final int MAX_SHARED_SCREEN_WIDTH = 800;
+    public static final int MAX_SHARED_SCREEN_HEIGHT = 800;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
@@ -38,6 +39,7 @@ public class Const {
 
     public static final int TEST_RTP_PORT = 1234;
 
+    public static final String ACTION_SCREEN_SHARING_START = "SCREEN_SHARING_START";
     public static final String ACTION_SCREEN_SHARING_STOP = "SCREEN_SHARING_STOP";
     public static final String ACTION_SCREEN_SHARING_PERMISSION_NEEDED = "SCREEN_SHARING_PERMISSION_NEEDED";
     public static final String ACTION_SCREEN_SHARING_FAILED = "SCREEN_SHARING_FAILED";

@@ -38,6 +38,7 @@
     <string name="screen_cast_denied">Session aborted because the screen cast permission not granted. Please allow screen sharing to enable the remote control session!</string>
     <string name="sharing_error">Attempt to share the screen is failed! Looks like the app is not compatible with your device, sorry for that!</string>
     <string name="notification_text">Your device is remotely controlled!</string>
+    <string name="ok">OK</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

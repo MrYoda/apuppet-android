@@ -3,6 +3,7 @@ package com.hmdm.control;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -103,10 +104,14 @@ public class ScreenSharingService extends Service {
         } else {
             builder = new NotificationCompat.Builder(this);
         }
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, Const.REQUEST_FROM_NOTIFICATION, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = builder
                 .setContentTitle(getString(R.string.app_name))
                 .setTicker(getString(R.string.app_name))
                 .setContentText(getString(R.string.notification_text))
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_notification).build();
 
         startForeground(NOTIFICATION_ID, notification);
@@ -114,29 +119,32 @@ public class ScreenSharingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals(ACTION_SET_METRICS)) {
-            mScreenWidth = intent.getIntExtra(ATTR_SCREEN_WIDTH, 0);
-            mScreenHeight = intent.getIntExtra(ATTR_SCREEN_HEIGHT, 0);
-            mScreenDensity = intent.getIntExtra(ATTR_SCREEN_DENSITY, 0);
+        String action = intent.getAction();
+        if (action != null) {
+            if (action.equals(ACTION_SET_METRICS)) {
+                mScreenWidth = intent.getIntExtra(ATTR_SCREEN_WIDTH, 0);
+                mScreenHeight = intent.getIntExtra(ATTR_SCREEN_HEIGHT, 0);
+                mScreenDensity = intent.getIntExtra(ATTR_SCREEN_DENSITY, 0);
 
-        } else if (intent.getAction().equals(ACTION_CONFIGURE)) {
-            configure(intent.getBooleanExtra(ATTR_AUDIO, false),
-                    intent.getIntExtra(ATTR_FRAME_RATE, 0),
-                    intent.getIntExtra(ATTR_BITRATE, 0),
-                    intent.getStringExtra(ATTR_HOST),
-                    intent.getIntExtra(ATTR_AUDIO_PORT, 0),
-                    intent.getIntExtra(ATTR_VIDEO_PORT, 0));
+            } else if (action.equals(ACTION_CONFIGURE)) {
+                configure(intent.getBooleanExtra(ATTR_AUDIO, false),
+                        intent.getIntExtra(ATTR_FRAME_RATE, 0),
+                        intent.getIntExtra(ATTR_BITRATE, 0),
+                        intent.getStringExtra(ATTR_HOST),
+                        intent.getIntExtra(ATTR_AUDIO_PORT, 0),
+                        intent.getIntExtra(ATTR_VIDEO_PORT, 0));
 
-        } else if (intent.getAction().equals(ACTION_REQUEST_SHARING)) {
-            requestSharing();
+            } else if (action.equals(ACTION_REQUEST_SHARING)) {
+                requestSharing();
 
-        } else if (intent.getAction().equals(ACTION_START_SHARING)) {
-            int resultCode = intent.getIntExtra(ATTR_RESULT_CODE, 0);
-            Intent data = intent.getParcelableExtra(ATTR_DATA);
-            startSharing(resultCode, data);
+            } else if (action.equals(ACTION_START_SHARING)) {
+                int resultCode = intent.getIntExtra(ATTR_RESULT_CODE, 0);
+                Intent data = intent.getParcelableExtra(ATTR_DATA);
+                startSharing(resultCode, data);
 
-        } else if (intent.getAction().equals(ACTION_STOP_SHARING)) {
-            stopSharing();
+            } else if (action.equals(ACTION_STOP_SHARING)) {
+                stopSharing();
+            }
         }
 
         return Service.START_STICKY;
@@ -242,6 +250,7 @@ public class ScreenSharingService extends Service {
         mPacketizer.setInputStream(mcis);
         mcis.setH264Packetizer((H264Packetizer) mPacketizer);
         mPacketizer.start();
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Const.ACTION_SCREEN_SHARING_START));
     }
 
     private VirtualDisplay createVirtualDisplay() {

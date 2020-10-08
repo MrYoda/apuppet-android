@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +43,10 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private String password;
     private String adminName;
 
+    private final static String ATTR_SESSION_ID = "sessionId";
+    private final static String ATTR_PASSWORD = "password";
+    private final static String ATTR_ADMIN_NAME = "adminName";
+
     private boolean needReconnect = false;
 
     private MediaProjectionManager projectionManager;
@@ -49,9 +54,16 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private BroadcastReceiver mSharingServiceReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_STOP)) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+            if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_START)) {
+                notifySharingStart();
+
+            } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_STOP)) {
                 adminName = null;
                 updateUI();
+
             } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_FAILED)) {
                 String message = intent.getStringExtra(Const.EXTRA_MESSAGE);
                 if (message != null) {
@@ -59,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 }
                 adminName = null;
                 updateUI();
+
             } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED)) {
                 startActivityForResult(projectionManager.createScreenCaptureIntent(), Const.REQUEST_SCREEN_SHARE);
             }
@@ -69,6 +82,11 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         settingsHelper = SettingsHelper.getInstance(this);
@@ -77,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         sharingEngine.setStateListener(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        ScreenSharingHelper.getRealScreenSize(this, metrics);
         float videoScale = ScreenSharingHelper.adjustScreenMetrics(metrics);
         settingsHelper.setFloat(SettingsHelper.KEY_VIDEO_SCALE, videoScale);
         ScreenSharingHelper.setScreenMetrics(this, metrics.widthPixels, metrics.heightPixels, metrics.densityDpi);
@@ -85,7 +103,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         sharingEngine.setScreenWidth(metrics.widthPixels);
         sharingEngine.setScreenHeight(metrics.heightPixels);
 
-        IntentFilter intentFilter = new IntentFilter(Const.ACTION_SCREEN_SHARING_STOP);
+        IntentFilter intentFilter = new IntentFilter(Const.ACTION_SCREEN_SHARING_START);
+        intentFilter.addAction(Const.ACTION_SCREEN_SHARING_STOP);
         intentFilter.addAction(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED);
         intentFilter.addAction(Const.ACTION_SCREEN_SHARING_FAILED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mSharingServiceReceiver, intentFilter);
@@ -142,8 +161,25 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(mSharingServiceReceiver);
+        try {
+            unregisterReceiver(mSharingServiceReceiver);
+        } catch (Exception e) {
+        }
         super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString(ATTR_SESSION_ID, sessionId);
+        savedInstanceState.putString(ATTR_PASSWORD, password);
+        savedInstanceState.putString(ATTR_ADMIN_NAME, adminName);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        sessionId = savedInstanceState.getString(ATTR_SESSION_ID);
+        password = savedInstanceState.getString(ATTR_PASSWORD);
+        adminName = savedInstanceState.getString(ATTR_ADMIN_NAME);
     }
 
     @Override
@@ -343,5 +379,21 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     rtpVideoPort
                     );
         }
+    }
+
+    private void notifySharingStart() {
+        final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                .setMessage(R.string.notification_text)
+                .setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
+        new Handler().postDelayed(() -> {
+            if (dialog != null && dialog.isShowing()) {
+                try {
+                    dialog.dismiss();
+                } catch (Exception e) {
+                }
+            }
+        }, 3000);
     }
 }
