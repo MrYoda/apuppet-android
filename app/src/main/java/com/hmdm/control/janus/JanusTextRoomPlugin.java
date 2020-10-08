@@ -147,7 +147,10 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                     return;
                                 }
                                 String text = jsonObject.optString("text");
-                                if (eventListener != null) {
+                                if (text.startsWith("ping,")) {
+                                    String[] parts = text.split(",");
+                                    sendMessage("pong," + parts[1], false);
+                                } else if (eventListener != null) {
                                     Log.d(Const.LOG_TAG, "Dispatching message: " + text);
                                     handler.post(() -> eventListener.onRemoteControlEvent(text));
                                 }
@@ -426,22 +429,24 @@ public class JanusTextRoomPlugin extends JanusPlugin {
         return Const.SUCCESS;
     }
 
-    public int sendMessage(String message) {
-        String sendCommand = "{\"textroom\":\"message\",\"room\":\"" + roomId + "\",\"text\":\"" + message + "\",\"ack\":true," +
+    public int sendMessage(String message, boolean ack) {
+        String sendCommand = "{\"textroom\":\"message\",\"room\":\"" + roomId + "\",\"text\":\"" + message + "\",\"ack\":" + ack + "," +
                 "\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
 
         sendToDataChannel(sendCommand);
-        synchronized (dcResultLock) {
-            try {
-                dcResultLock.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                errorReason = "Interrupted";
-                return Const.INTERNAL_ERROR;
-            }
-            if (!dcResult) {
-                errorReason = "Failed to send a message to room";
-                return Const.SERVER_ERROR;
+        if (ack) {
+            synchronized (dcResultLock) {
+                try {
+                    dcResultLock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    errorReason = "Interrupted";
+                    return Const.INTERNAL_ERROR;
+                }
+                if (!dcResult) {
+                    errorReason = "Failed to send a message to room";
+                    return Const.SERVER_ERROR;
+                }
             }
         }
         return Const.SUCCESS;

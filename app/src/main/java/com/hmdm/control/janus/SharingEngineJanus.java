@@ -74,7 +74,7 @@ public class SharingEngineJanus extends SharingEngine {
                             @Override
                             public void onStartSharing(String username) {
                                 // Send screen resolution before starting sharing
-                                janusTextRoomPlugin.sendMessage(screenResolutionMessage());
+                                janusTextRoomPlugin.sendMessage(screenResolutionMessage(), false);
                                 if (eventListener != null) {
                                     eventListener.onStartSharing(username);
                                 }
