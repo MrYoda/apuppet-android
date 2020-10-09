@@ -162,10 +162,6 @@ public class SharingEngineJanus extends SharingEngine {
         errorReason = null;
         setState(Const.STATE_DISCONNECTING);
 
-        if (janusSession != null) {
-            janusSession.stopPolling(context);
-        }
-
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
@@ -183,6 +179,9 @@ public class SharingEngineJanus extends SharingEngine {
 
             @Override
             protected void onPostExecute(Integer result) {
+                if (janusSession != null) {
+                    janusSession.stopPolling(context);
+                }
                 // Not really fair, but it's unclear how to handle destroying errors!
                 setState(Const.STATE_DISCONNECTED);
                 reset();

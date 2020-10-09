@@ -266,16 +266,17 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     notifySharingStop();
                     ScreenSharingHelper.stopSharing(MainActivity.this, true);
                 }
-                sharingEngine.disconnect(MainActivity.this, new SharingEngineJanus.CompletionHandler() {
-                    @Override
-                    public void onComplete(boolean success, String errorReason) {
-                        Intent intent = new Intent(MainActivity.this, ScreenSharingService.class);
-                        stopService(intent);
-                        finish();
-                    }
-                });
+                sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> exitApp());
+                // 10 sec timeout to exit
+                new Handler().postDelayed(() -> exitApp(), 5000);
             }
         });
+    }
+
+    private void exitApp() {
+        Intent intent = new Intent(MainActivity.this, ScreenSharingService.class);
+        stopService(intent);
+        finish();
     }
 
     private void updateUI() {

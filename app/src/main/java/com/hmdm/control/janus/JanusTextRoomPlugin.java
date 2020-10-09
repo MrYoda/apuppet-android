@@ -373,7 +373,6 @@ public class JanusTextRoomPlugin extends JanusPlugin {
         // We need to send something into the data channel, otherwise it won't be initialized
         String message = "{\"textroom\":\"list\",\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
         sendToDataChannel(message);
-
     }
 
     private void sendToDataChannel(String message) {
@@ -455,13 +454,8 @@ public class JanusTextRoomPlugin extends JanusPlugin {
     @Override
     public int destroy() {
         if (dataChannel != null) {
-            String destroyMessage = "{\"textroom\":\"destroy\",\"room\":\"" + roomId + "\"permanent\":false,\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
-            ByteBuffer data = Utils.stringToByteBuffer(destroyMessage);
-            DataChannel.Buffer buffer = new DataChannel.Buffer(data, false);
-            if (!dataChannel.send(buffer)) {
-                errorReason = "Network error";
-                return Const.NETWORK_ERROR;
-            }
+            String destroyMessage = "{\"textroom\":\"destroy\",\"room\":\"" + roomId + "\",\"permanent\":false,\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
+            sendToDataChannel(destroyMessage);
         }
         return Const.SUCCESS;
     }
