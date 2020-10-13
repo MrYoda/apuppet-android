@@ -44,4 +44,5 @@ public class Const {
     public static final String ACTION_SCREEN_SHARING_STOP = "SCREEN_SHARING_STOP";
     public static final String ACTION_SCREEN_SHARING_PERMISSION_NEEDED = "SCREEN_SHARING_PERMISSION_NEEDED";
     public static final String ACTION_SCREEN_SHARING_FAILED = "SCREEN_SHARING_FAILED";
+    public static final String ACTION_GESTURE = "GESTURE";
 }

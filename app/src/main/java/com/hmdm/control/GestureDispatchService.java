@@ -9,8 +9,11 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 public class GestureDispatchService extends AccessibilityService {
+    // Sharing state
+    private boolean isSharing = false;
+
     @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) {
+    public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
     }
 
     @Override

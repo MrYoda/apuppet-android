@@ -368,6 +368,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     @Override
     public void onRemoteControlEvent(String event) {
         Intent intent = new Intent(MainActivity.this, GestureDispatchService.class);
+        intent.setAction(Const.ACTION_GESTURE);
         intent.putExtra(Const.EXTRA_EVENT, event);
         startService(intent);
     }
