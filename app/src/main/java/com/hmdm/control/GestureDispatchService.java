@@ -23,9 +23,14 @@ public class GestureDispatchService extends AccessibilityService {
     // This is called from the main activity when it gets a message from the Janus socket
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String event = intent.getStringExtra(Const.EXTRA_EVENT);
-        if (event != null) {
-            processMessage(event);
+        if (intent == null || intent.getAction() == null) {
+            return Service.START_STICKY;
+        }
+        if (intent.getAction().equals(Const.ACTION_GESTURE)) {
+            String event = intent.getStringExtra(Const.EXTRA_EVENT);
+            if (event != null) {
+                processMessage(event);
+            }
         }
         return Service.START_STICKY;
     }
