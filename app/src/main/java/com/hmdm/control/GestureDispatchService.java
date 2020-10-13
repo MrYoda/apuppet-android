@@ -32,6 +32,7 @@ public class GestureDispatchService extends AccessibilityService {
             if (event != null && isSharing) {
                 processMessage(event);
             }
+        } else if (action.equals(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED)) {
         } else if (action.equals(Const.ACTION_SCREEN_SHARING_START)) {
             isSharing = true;
         } else if (action.equals(Const.ACTION_SCREEN_SHARING_STOP)) {
