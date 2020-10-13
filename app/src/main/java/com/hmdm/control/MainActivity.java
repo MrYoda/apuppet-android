@@ -28,6 +28,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.hmdm.control.janus.SharingEngineJanus;
 
+// Test
 public class MainActivity extends AppCompatActivity implements SharingEngineJanus.EventListener, SharingEngineJanus.StateListener {
 
     private ImageView imageViewConnStatus;
