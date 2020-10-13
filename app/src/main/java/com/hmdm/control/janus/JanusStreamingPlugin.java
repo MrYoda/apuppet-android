@@ -1,5 +1,6 @@
 package com.hmdm.control.janus;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.hmdm.control.Const;
@@ -24,7 +25,7 @@ public class JanusStreamingPlugin extends JanusPlugin {
     }
 
     @Override
-    public void onWebRtcUp() {
+    public void onWebRtcUp(final Context context) {
     }
 
     @Override

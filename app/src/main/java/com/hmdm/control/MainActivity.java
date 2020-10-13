@@ -84,6 +84,11 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 adminName = null;
                 updateUI();
 
+            } else if (intent.getAction().equals(Const.ACTION_CONNECTION_FAILURE)) {
+                sharingEngine.setState(Const.STATE_DISCONNECTED);
+                Toast.makeText(MainActivity.this, R.string.connection_failure_hint, Toast.LENGTH_LONG).show();
+                updateUI();
+
             } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED)) {
                 startActivityForResult(projectionManager.createScreenCaptureIntent(), Const.REQUEST_SCREEN_SHARE);
             }
@@ -119,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         intentFilter.addAction(Const.ACTION_SCREEN_SHARING_STOP);
         intentFilter.addAction(Const.ACTION_SCREEN_SHARING_PERMISSION_NEEDED);
         intentFilter.addAction(Const.ACTION_SCREEN_SHARING_FAILED);
+        intentFilter.addAction(Const.ACTION_CONNECTION_FAILURE);
         LocalBroadcastManager.getInstance(this).registerReceiver(mSharingServiceReceiver, intentFilter);
 
         projectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -418,6 +424,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     };
 
     private void notifySharingStart() {
+        notifyGestureService(Const.ACTION_SCREEN_SHARING_START);
         if (settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING)) {
             // Show a flashing dot
             Utils.lockDeviceRotation(this, true);
@@ -446,6 +453,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     }
 
     private void notifySharingStop() {
+        notifyGestureService(Const.ACTION_SCREEN_SHARING_STOP);
         if (settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING)) {
             overlayDotDirection = 0;
             if (overlayDot != null) {
@@ -455,6 +463,12 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             }
             Utils.lockDeviceRotation(this, false);
         }
+    }
+
+    private void notifyGestureService(String action) {
+        Intent intent = new Intent(MainActivity.this, GestureDispatchService.class);
+        intent.setAction(action);
+        startService(intent);
     }
 
     public ImageView createOverlayDot() {

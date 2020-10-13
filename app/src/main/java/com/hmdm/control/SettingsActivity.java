@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -112,12 +111,13 @@ public class SettingsActivity extends AppCompatActivity {
 
         loadSettings();
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (saveSettings()) {
-                    finish();
-                }
+        if (!checkBoxNotifySharing.isChecked()) {
+            Toast.makeText(this, R.string.notify_sharing_hint, Toast.LENGTH_LONG).show();
+        }
+
+        toolbar.setNavigationOnClickListener(view -> {
+            if (saveSettings()) {
+                finish();
             }
         });
     }
@@ -159,6 +159,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
         editTextDeviceName.setText(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
         editTextTestDstIp.setText(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP));
+        checkBoxNotifySharing.setChecked(settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING));
     }
 
     private boolean saveSettings() {
@@ -208,6 +209,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (!editTextTestDstIp.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP))) {
             return true;
         }
+        // No need to reconnect when KEY_NOTIFY_SHARING is changed
         return false;
     }
 

@@ -44,7 +44,7 @@ public class JanusSession {
             String event = intent.getStringExtra(Const.EXTRA_EVENT);
             for (Map.Entry<String,JanusPlugin> entry : pluginMap.entrySet()) {
                 if (Const.EXTRA_WEBRTCUP.equalsIgnoreCase(event)) {
-                    entry.getValue().onWebRtcUp();
+                    entry.getValue().onWebRtcUp(context);
                 } else if (Const.EXTRA_EVENT.equalsIgnoreCase(event)) {
                     JanusPollResponse message = (JanusPollResponse) intent.getSerializableExtra(Const.EXTRA_MESSAGE);
                     if (message != null && message.getPlugindata() != null) {

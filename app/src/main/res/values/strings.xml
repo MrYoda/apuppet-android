@@ -41,6 +41,8 @@
     <string name="ok">OK</string>
     <string name="notify_sharing">Flash when\n sharing</string>
     <string name="overlay_hint">To show a flashing dot when the device is controlled, the app needs to draw overlays. Please click "Continue" and grant this permission to the "aPuppet" app.</string>
+    <string name="notify_sharing_hint">Setting \"Flash when sharing\" improves screen sharing quality.</string>
+    <string name="connection_failure_hint">Failed to establish connection due to an internal error. Please retry, or exit the app and try again.</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

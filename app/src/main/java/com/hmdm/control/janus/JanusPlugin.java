@@ -39,7 +39,7 @@ public abstract class JanusPlugin {
         apiInstance = JanusServerApiFactory.getApiInstance(context);
     }
 
-    public void onWebRtcUp() {
+    public void onWebRtcUp(final Context context) {
     }
 
     public void onPollingEvent(JanusPollResponse event) {

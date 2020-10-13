@@ -1,8 +1,12 @@
 package com.hmdm.control.janus;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.hmdm.control.Const;
 import com.hmdm.control.ServerApiHelper;
@@ -45,6 +49,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
     private Object dcResultLock = new Object();
 
     private Handler handler = new Handler();
+    private Runnable hangupProtectionRunnable = null;
 
     @Override
     public String getName() {
@@ -150,6 +155,8 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                 if (text.startsWith("ping,")) {
                                     String[] parts = text.split(",");
                                     sendMessage("pong," + parts[1], false);
+                                } else if (text.startsWith("pong,")) {
+                                    // Echo from our response, do nothing
                                 } else if (eventListener != null) {
                                     Log.d(Const.LOG_TAG, "Dispatching message: " + text);
                                     handler.post(() -> eventListener.onRemoteControlEvent(text));
@@ -365,14 +372,35 @@ public class JanusTextRoomPlugin extends JanusPlugin {
     }
 
     @Override
-    public void onWebRtcUp() {
+    public void onWebRtcUp(final Context context) {
         Log.i(Const.LOG_TAG, "WebRTC is up!");
         DataChannel.Init init = new DataChannel.Init();
-        dataChannel = peerConnection.createDataChannel("Trick", init);
 
-        // We need to send something into the data channel, otherwise it won't be initialized
-        String message = "{\"textroom\":\"list\",\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
-        sendToDataChannel(message);
+        // This is running in a main thread and may hang up (a WebRTC fault)!!!
+        final AsyncTask<Void,Void,Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                dataChannel = peerConnection.createDataChannel("Trick", init);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                if (hangupProtectionRunnable != null) {
+                    handler.removeCallbacks(hangupProtectionRunnable);
+                }
+                // We need to send something into the data channel, otherwise it won't be initialized
+                String message = "{\"textroom\":\"list\",\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
+                sendToDataChannel(message);
+            }
+        }.execute();
+
+        // Hangup protection
+        hangupProtectionRunnable = () -> {
+            asyncTask.cancel(true);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Const.ACTION_CONNECTION_FAILURE));
+        };
+        handler.postDelayed(hangupProtectionRunnable, 5000);
     }
 
     private void sendToDataChannel(String message) {

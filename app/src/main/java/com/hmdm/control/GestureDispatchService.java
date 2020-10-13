@@ -26,11 +26,16 @@ public class GestureDispatchService extends AccessibilityService {
         if (intent == null || intent.getAction() == null) {
             return Service.START_STICKY;
         }
-        if (intent.getAction().equals(Const.ACTION_GESTURE)) {
+        String action = intent.getAction();
+        if (action.equals(Const.ACTION_GESTURE)) {
             String event = intent.getStringExtra(Const.EXTRA_EVENT);
-            if (event != null) {
+            if (event != null && isSharing) {
                 processMessage(event);
             }
+        } else if (action.equals(Const.ACTION_SCREEN_SHARING_START)) {
+            isSharing = true;
+        } else if (action.equals(Const.ACTION_SCREEN_SHARING_STOP)) {
+            isSharing = false;
         }
         return Service.START_STICKY;
     }
