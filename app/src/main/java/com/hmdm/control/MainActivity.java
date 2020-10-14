@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private EditText editTextPassword;
     private TextView textViewComment;
     private TextView textViewConnect;
+    private TextView textViewSendLink;
     private TextView textViewExit;
 
     private ImageView overlayDot;
@@ -227,6 +228,9 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, Const.REQUEST_SETTINGS);
             return true;
+        } else if (id == R.id.action_about) {
+            showAbout();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -256,26 +260,21 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         editTextPassword = findViewById(R.id.password_edit);
         textViewComment = findViewById(R.id.comment);
         textViewConnect = findViewById(R.id.reconnect);
+        textViewSendLink = findViewById(R.id.send_link);
         textViewExit = findViewById(R.id.disconnect_exit);
 
-        textViewConnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                connect();
-            }
-        });
+        textViewConnect.setOnClickListener(v -> connect());
 
-        textViewExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (adminName != null) {
-                    notifySharingStop();
-                    ScreenSharingHelper.stopSharing(MainActivity.this, true);
-                }
-                sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> exitApp());
-                // 10 sec timeout to exit
-                new Handler().postDelayed(() -> exitApp(), 5000);
+        textViewSendLink.setOnClickListener(v -> sendLink());
+
+        textViewExit.setOnClickListener(v -> {
+            if (adminName != null) {
+                notifySharingStop();
+                ScreenSharingHelper.stopSharing(MainActivity.this, true);
             }
+            sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> exitApp());
+            // 10 sec timeout to exit
+            new Handler().postDelayed(() -> exitApp(), 5000);
         });
     }
 
@@ -299,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         }
         String serverUrl = Utils.prepareDisplayUrl(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL));
 
+        textViewSendLink.setVisibility(state == Const.STATE_CONNECTED ? View.VISIBLE : View.INVISIBLE);
         textViewConnect.setVisibility(state == Const.STATE_DISCONNECTED ? View.VISIBLE : View.INVISIBLE);
         switch (state) {
             case Const.STATE_DISCONNECTED:
@@ -335,6 +335,33 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         if (settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE) == 0) {
             settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, Const.DEFAULT_FRAME_RATE);
         }
+    }
+
+    private void sendLink() {
+        String url = settingsHelper.getString(SettingsHelper.KEY_SERVER_URL);
+        url += "?session=" + sessionId + "&pin=" + password;
+        try {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.send_link_subject));
+            String shareMessage= getString(R.string.send_link_message, url, settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.send_link_chooser)));
+        } catch(Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, R.string.send_link_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void showAbout() {
+        ImageView imageView = new ImageView(this);
+        imageView.setImageDrawable(getResources().getDrawable(R.mipmap.ic_launcher));
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.about_title)
+                .setMessage(getString(R.string.about_message, BuildConfig.VERSION_NAME, BuildConfig.VARIANT))
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
     }
 
     private void connect() {

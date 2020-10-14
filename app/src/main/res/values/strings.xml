@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">aPuppet - Remote Control</string>
+    <string name="about_title">aPuppet</string>
+    <string name="about_message">\n\nMobile agent for the open source Android remote control service.\n\nVersion: %s\n\nVariant: %s\n\n(c) 2020 apuppet.org</string>
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
     <string name="back_pressed">Tap Home to hide the screen. To stop screen sharing, open the plugin activity through the "Recents" button.</string>
     <string name="accessibility_service_description">Accessibility service is used to simulate touch screen events for remote control of the device.</string>
     <string name="state_disconnected">Disconnected</string>
@@ -43,6 +46,11 @@
     <string name="overlay_hint">To show a flashing dot when the device is controlled, the app needs to draw overlays. Please click "Continue" and grant this permission to the "aPuppet" app.</string>
     <string name="notify_sharing_hint">Setting \"Flash when sharing\" improves screen sharing quality.</string>
     <string name="connection_failure_hint">Failed to establish connection due to an internal error. Please retry, or exit the app and try again.</string>
+    <string name="send_link">Send a remote control link</string>
+    <string name="send_link_subject">Android device remote control invitation</string>
+    <string name="send_link_message">Please connect to my Android device (%s) remotely using the aPuppet service: %s</string>
+    <string name="send_link_failed">Failed to share a link, please contact the technical support!</string>
+    <string name="send_link_chooser">How to send a link?</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>

@@ -10,10 +10,13 @@ android {
         applicationId "com.hmdm.control"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 12
-        versionName "1.12"
+        versionCode 13
+        versionName "1.13"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Build variant displayed on the "About" screen
+        buildConfigField("String", "VARIANT", "\"opensource\"")
     }
 
     buildTypes {
