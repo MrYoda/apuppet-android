@@ -41,6 +41,7 @@
     <string name="screen_cast_denied">Session aborted because the screen cast permission not granted. Please allow screen sharing to enable the remote control session!</string>
     <string name="sharing_error">Attempt to share the screen is failed! Looks like the app is not compatible with your device, sorry for that!</string>
     <string name="notification_text">Your device is remotely controlled!</string>
+    <string name="share_start_text">Your device is remotely controlled!</string>
     <string name="ok">OK</string>
     <string name="notify_sharing">Flash when\n sharing</string>
     <string name="overlay_hint">To show a flashing dot when the device is controlled, the app needs to draw overlays. Please click "Continue" and grant this permission to the "aPuppet" app.</string>

@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         } else {
             // Just show some dialog to trigger the traffic
             final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                    .setMessage(R.string.notification_text)
+                    .setMessage(R.string.share_start_text)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss())
                     .create();
             dialog.show();
