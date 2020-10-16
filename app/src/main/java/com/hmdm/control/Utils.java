@@ -145,17 +145,18 @@ public class Utils {
         }
     }
 
-    public static void promptOverlayPermissions(Activity activity) {
-        new AlertDialog.Builder(activity)
+    public static void promptOverlayPermissions(Activity activity, boolean canCancel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setMessage(R.string.overlay_hint)
                 .setPositiveButton(R.string.continue_button, (dialog, which) -> {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:" + activity.getPackageName()));
                     activity.startActivityForResult(intent, Const.REQUEST_PERMISSION_OVERLAY);
                 })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .setCancelable(false)
-                .create()
-                .show();
+                .setCancelable(false);
+        if (canCancel) {
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        }
+        builder.create().show();
     }
 }

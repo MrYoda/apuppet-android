@@ -93,7 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (isChecked) {
                 if (!Settings.canDrawOverlays(this)) {
                     checkBoxNotifySharing.setChecked(false);
-                    Utils.promptOverlayPermissions(this);
+                    Utils.promptOverlayPermissions(this, true);
                 }
             }
         });
