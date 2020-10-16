@@ -46,4 +46,7 @@ public class Const {
     public static final String ACTION_SCREEN_SHARING_FAILED = "SCREEN_SHARING_FAILED";
     public static final String ACTION_CONNECTION_FAILURE = "CONNECTION_FAILURE";
     public static final String ACTION_GESTURE = "GESTURE";
+
+    public static final int DEFAULT_SERVER_PORT = 9443;
+    public static final String DEFAULT_SERVER_PATH = "/rtp-web-admin/";
 }

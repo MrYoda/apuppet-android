@@ -15,6 +15,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        // Default server URL
+        buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://srv.apuppet.org/rtp-web-admin/\"")
+
         // Build variant displayed on the "About" screen
         buildConfigField("String", "VARIANT", "\"opensource\"")
     }
