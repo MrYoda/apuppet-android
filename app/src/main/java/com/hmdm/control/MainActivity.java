@@ -286,7 +286,10 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private void exitApp() {
         Intent intent = new Intent(MainActivity.this, ScreenSharingService.class);
         stopService(intent);
-        finish();
+        intent = new Intent(MainActivity.this, GestureDispatchService.class);
+        stopService(intent);
+        finishAffinity();
+        System.exit(0);
     }
 
     private void updateUI() {
