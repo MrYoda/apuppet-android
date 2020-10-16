@@ -84,6 +84,7 @@ public class ScreenSharingService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(Const.LOG_TAG, "ScreenSharingService created");
         mPacketizer = new H264Packetizer();
         mProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startAsForeground();
@@ -119,10 +120,12 @@ public class ScreenSharingService extends Service {
             return Service.START_STICKY;
         }
         String action = intent.getAction();
+        Log.d(Const.LOG_TAG, "ScreenSharingService got command: " + action);
         if (action.equals(ACTION_SET_METRICS)) {
             mScreenWidth = intent.getIntExtra(ATTR_SCREEN_WIDTH, 0);
             mScreenHeight = intent.getIntExtra(ATTR_SCREEN_HEIGHT, 0);
             mScreenDensity = intent.getIntExtra(ATTR_SCREEN_DENSITY, 0);
+            Log.d(Const.LOG_TAG, "ScreenSharingService: width=" + mScreenWidth + ", height=" + mScreenHeight + ", density=" + mScreenDensity);
 
         } else if (action.equals(ACTION_CONFIGURE)) {
             configure(intent.getBooleanExtra(ATTR_AUDIO, false),
@@ -151,6 +154,7 @@ public class ScreenSharingService extends Service {
     private void configure(boolean audio, int videoFrameRate, int videoBitRate, String host, int audioPort, int videoPort) {
         mVideoFrameRate = videoFrameRate;
         mVideoBitrate = videoBitRate;
+        Log.d(Const.LOG_TAG, "ScreenSharingService: frameRate=" + mVideoFrameRate + ", bitrate=" + mVideoBitrate);
 
         // This is executed in the background because the operation requires host resolution
         new AsyncTask<Void,Void,Void>() {
