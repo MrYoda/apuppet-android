@@ -155,25 +155,29 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     .create()
                     .show();
         } else {
-            if (settingsHelper.getString(SettingsHelper.KEY_SERVER_URL) == null) {
-                // Not configured yet
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivityForResult(intent, Const.REQUEST_SETTINGS);
-                return;
-            }
+            configureAndConnect();
+        }
+    }
 
-            if (needReconnect) {
-                // Here we go after changing settings
-                needReconnect = false;
-                if (sharingEngine.getState() != Const.STATE_DISCONNECTED) {
-                    sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> connect());
-                } else {
-                    connect();
-                }
+    private void configureAndConnect() {
+        if (settingsHelper.getString(SettingsHelper.KEY_SERVER_URL) == null) {
+            // Not configured yet
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, Const.REQUEST_SETTINGS);
+            return;
+        }
+
+        if (needReconnect) {
+            // Here we go after changing settings
+            needReconnect = false;
+            if (sharingEngine.getState() != Const.STATE_DISCONNECTED) {
+                sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> connect());
             } else {
-                if (sharingEngine.getState() == Const.STATE_DISCONNECTED && sharingEngine.getErrorReason() == null) {
-                    connect();
-                }
+                connect();
+            }
+        } else {
+            if (sharingEngine.getState() == Const.STATE_DISCONNECTED && sharingEngine.getErrorReason() == null) {
+                connect();
             }
         }
     }
