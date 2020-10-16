@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
@@ -94,17 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (isChecked) {
                 if (!Settings.canDrawOverlays(this)) {
                     checkBoxNotifySharing.setChecked(false);
-                    new AlertDialog.Builder(this)
-                            .setMessage(R.string.overlay_hint)
-                            .setPositiveButton(R.string.continue_button, (dialog, which) -> {
-                                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        Uri.parse("package:" + getPackageName()));
-                                startActivityForResult(intent, Const.REQUEST_PERMISSION_OVERLAY);
-                            })
-                            .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                            .setCancelable(false)
-                            .create()
-                            .show();
+                    Utils.promptOverlayPermissions(this);
                 }
             }
         });

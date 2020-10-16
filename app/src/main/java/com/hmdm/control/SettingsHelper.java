@@ -10,14 +10,14 @@ public class SettingsHelper {
     private static final String PREFERENCES = "com.hmdm.control.PREFERENCES";
 
     // Data keys
-    public static final String KEY_SERVER_URL = "SERVER_URL";
-    public static final String KEY_DEVICE_NAME = "DEVICE_NAME";
-    public static final String KEY_TRANSLATE_AUDIO = "TRANSLATE_AUDIO";
-    public static final String KEY_BITRATE = "BITRATE";
-    public static final String KEY_FRAME_RATE = "FRAME_RATE";
-    public static final String KEY_TEST_DST_IP = "DST_IP";
-    public static final String KEY_VIDEO_SCALE = "VIDEO_SCALE";
-    public static final String KEY_NOTIFY_SHARING = "NOTIFY_SHARING";
+    public static final String KEY_SERVER_URL = "server_url";
+    public static final String KEY_DEVICE_NAME = "device_name";
+    public static final String KEY_TRANSLATE_AUDIO = "translate_audio";
+    public static final String KEY_BITRATE = "bitrate";
+    public static final String KEY_FRAME_RATE = "frame_rate";
+    public static final String KEY_TEST_DST_IP = "dst_ip";
+    public static final String KEY_VIDEO_SCALE = "video_scale";
+    public static final String KEY_NOTIFY_SHARING = "notify_sharing";
 
     private SharedPreferences sharedPreferences;
 

@@ -2,9 +2,12 @@ package com.hmdm.control;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -140,5 +143,19 @@ public class Utils {
                 activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
             }
         }
+    }
+
+    public static void promptOverlayPermissions(Activity activity) {
+        new AlertDialog.Builder(activity)
+                .setMessage(R.string.overlay_hint)
+                .setPositiveButton(R.string.continue_button, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + activity.getPackageName()));
+                    activity.startActivityForResult(intent, Const.REQUEST_PERMISSION_OVERLAY);
+                })
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .setCancelable(false)
+                .create()
+                .show();
     }
 }
