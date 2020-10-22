@@ -52,6 +52,9 @@
     <string name="send_link_message">Please connect to my Android device (%s) remotely using the aPuppet service: %s</string>
     <string name="send_link_failed">Failed to share a link, please contact the technical support!</string>
     <string name="send_link_chooser">How to send a link?</string>
+    <string name="app_idle_exit">The application is stopped because it\'s idle!</string>
+    <string name="app_sharing_session_ping_timeout">The remote control session is stopped because there\'s no connection with the server!</string>
+    <string name="exit_on_idle">Exit if idle</string>
 
     <string-array name="bitrates">
         <item>128 kbps</item>
@@ -66,5 +69,14 @@
         <item>10 fps</item>
         <item>15 fps</item>
         <item>20 fps</item>
+    </string-array>
+
+    <string-array name="idle_timeouts">
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+        <item>Never</item>
     </string-array>
 </resources>

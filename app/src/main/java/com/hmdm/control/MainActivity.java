@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private TextView textViewExit;
 
     private ImageView overlayDot;
-    private Handler handler;
+    private Handler handler = new Handler();
     private int overlayDotAlpha;
     private int overlayDotDirection = 1;
 
@@ -76,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 notifySharingStop();
                 adminName = null;
                 updateUI();
+                cancelSharingTimeout();
+                scheduleExitOnIdle();
 
             } else if (intent.getAction().equals(Const.ACTION_SCREEN_SHARING_FAILED)) {
                 String message = intent.getStringExtra(Const.EXTRA_MESSAGE);
@@ -84,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                 }
                 adminName = null;
                 updateUI();
+                cancelSharingTimeout();
+                scheduleExitOnIdle();
 
             } else if (intent.getAction().equals(Const.ACTION_CONNECTION_FAILURE)) {
                 sharingEngine.setState(Const.STATE_DISCONNECTED);
@@ -232,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             }
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, Const.REQUEST_SETTINGS);
+            cancelExitOnIdle();
             return true;
         } else if (id == R.id.action_about) {
             showAbout();
@@ -245,13 +251,19 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Const.REQUEST_SETTINGS && resultCode == Const.RESULT_DIRTY) {
-            needReconnect = true;
+        if (requestCode == Const.REQUEST_SETTINGS) {
+            if (resultCode == Const.RESULT_DIRTY) {
+                needReconnect = true;
+            } else {
+                scheduleExitOnIdle();
+            }
         } else if (requestCode == Const.REQUEST_SCREEN_SHARE) {
             if (resultCode != RESULT_OK) {
                 Toast.makeText(this, R.string.screen_cast_denied, Toast.LENGTH_LONG).show();
                 adminName = null;
                 updateUI();
+                cancelSharingTimeout();
+                scheduleExitOnIdle();
             } else {
                 ScreenSharingHelper.startSharing(this, resultCode, data);
             }
@@ -272,15 +284,17 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
 
         textViewSendLink.setOnClickListener(v -> sendLink());
 
-        textViewExit.setOnClickListener(v -> {
-            if (adminName != null) {
-                notifySharingStop();
-                ScreenSharingHelper.stopSharing(MainActivity.this, true);
-            }
-            sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> exitApp());
-            // 10 sec timeout to exit
-            new Handler().postDelayed(() -> exitApp(), 5000);
-        });
+        textViewExit.setOnClickListener(v -> gracefulExit());
+    }
+
+    private void gracefulExit() {
+        if (adminName != null) {
+            notifySharingStop();
+            ScreenSharingHelper.stopSharing(MainActivity.this, true);
+        }
+        sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> exitApp());
+        // 5 sec timeout to exit
+        handler.postDelayed(() -> exitApp(), 5000);
     }
 
     private void exitApp() {
@@ -343,6 +357,12 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         if (settingsHelper.getInt(SettingsHelper.KEY_FRAME_RATE) == 0) {
             settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, Const.DEFAULT_FRAME_RATE);
         }
+        if (settingsHelper.getInt(SettingsHelper.KEY_IDLE_TIMEOUT) == 0) {
+            settingsHelper.setInt(SettingsHelper.KEY_IDLE_TIMEOUT, Const.DEFAULT_IDLE_TIMEOUT);
+        }
+        if (settingsHelper.getInt(SettingsHelper.KEY_PING_TIMEOUT) == 0) {
+            settingsHelper.setInt(SettingsHelper.KEY_PING_TIMEOUT, Const.DEFAULT_PING_TIMEOUT);
+        }
     }
 
     private void sendLink() {
@@ -373,20 +393,21 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     }
 
     private void connect() {
-        sessionId = Utils.randomString(8, true);
-        password = Utils.randomString(4, true);
+        if (sessionId == null || password == null) {
+            sessionId = Utils.randomString(8, true);
+            password = Utils.randomString(4, true);
+        }
         sharingEngine.setUsername(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
-        sharingEngine.connect(this, sessionId, password, new SharingEngineJanus.CompletionHandler() {
-            @Override
-            public void onComplete(boolean success, String errorReason) {
-                if (!success) {
-                    String message = getString(R.string.connection_error, settingsHelper.getString(SettingsHelper.KEY_SERVER_URL), errorReason);
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-                    editTextSessionId.setText(null);
-                    editTextPassword.setText(null);
-                }
+        sharingEngine.connect(this, sessionId, password, (success, errorReason) -> {
+            if (!success) {
+                String message = getString(R.string.connection_error, settingsHelper.getString(SettingsHelper.KEY_SERVER_URL), errorReason);
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                editTextSessionId.setText(null);
+                editTextPassword.setText(null);
             }
         });
+
+        scheduleExitOnIdle();
     }
 
     @Override
@@ -394,6 +415,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         // This event is raised when the admin joins the text room
         this.adminName = adminName;
         updateUI();
+        cancelExitOnIdle();
+        scheduleSharingTimeout();
         ScreenSharingHelper.requestSharing(this);
     }
 
@@ -403,6 +426,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         notifySharingStop();
         adminName = null;
         updateUI();
+        cancelSharingTimeout();
+        scheduleExitOnIdle();
         ScreenSharingHelper.stopSharing(this, false);
     }
 
@@ -412,6 +437,14 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         intent.setAction(Const.ACTION_GESTURE);
         intent.putExtra(Const.EXTRA_EVENT, event);
         startService(intent);
+    }
+
+    @Override
+    public void onPing() {
+        if (adminName != null) {
+            cancelSharingTimeout();
+            scheduleSharingTimeout();
+        }
     }
 
     @Override
@@ -437,6 +470,56 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     );
         }
     }
+
+    private void scheduleExitOnIdle() {
+        int exitOnIdleTimeout = settingsHelper.getInt(SettingsHelper.KEY_IDLE_TIMEOUT);
+        if (exitOnIdleTimeout > 0) {
+            handler.postDelayed(exitOnIdleRunnable, exitOnIdleTimeout * 1000);
+            Log.d(Const.LOG_TAG, "Scheduling exit in " + (exitOnIdleTimeout * 1000) + " sec");
+        }
+    }
+
+    private void cancelExitOnIdle() {
+        Log.d(Const.LOG_TAG, "Cancelling scheduled exit");
+        handler.removeCallbacks(exitOnIdleRunnable);
+    }
+
+    private Runnable exitOnIdleRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(MainActivity.this, R.string.app_idle_exit, Toast.LENGTH_LONG).show();
+            gracefulExit();
+        }
+    };
+
+    private void scheduleSharingTimeout() {
+        int pingTimeout = settingsHelper.getInt(SettingsHelper.KEY_PING_TIMEOUT);
+        if (pingTimeout > 0) {
+            Log.d(Const.LOG_TAG, "Scheduling sharing stop in " + (pingTimeout * 1000) + " sec");
+            handler.postDelayed(sharingStopByPingTimeoutRunnable, pingTimeout * 1000);
+        }
+    }
+
+    private void cancelSharingTimeout() {
+        Log.d(Const.LOG_TAG, "Cancelling scheduled sharing stop");
+        handler.removeCallbacks(sharingStopByPingTimeoutRunnable);
+    }
+
+    private Runnable sharingStopByPingTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(MainActivity.this, R.string.app_sharing_session_ping_timeout, Toast.LENGTH_LONG).show();
+            if (adminName != null) {
+                notifySharingStop();
+                ScreenSharingHelper.stopSharing(MainActivity.this, false);
+            }
+            adminName = null;
+            updateUI();
+            cancelSharingTimeout();
+            scheduleExitOnIdle();
+            sharingEngine.disconnect(MainActivity.this, (success, errorReason) -> connect());
+        }
+    };
 
     private Runnable overlayDotRunnable = new Runnable() {
         @Override
@@ -466,7 +549,6 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
             overlayDot = createOverlayDot();
             overlayDotAlpha = 0;
             overlayDotDirection = 1;
-            handler = new Handler();
             handler.postDelayed(overlayDotRunnable, OVERLAY_DOT_ANIMATION_DELAY);
 
         } else {
@@ -476,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     .setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss())
                     .create();
             dialog.show();
-            new Handler().postDelayed(() -> {
+            handler.postDelayed(() -> {
                 if (dialog != null && dialog.isShowing()) {
                     try {
                         dialog.dismiss();

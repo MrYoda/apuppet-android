@@ -122,6 +122,25 @@
         app:layout_constraintLeft_toLeftOf="@+id/server_url"/>
 
     <TextView
+        android:id="@+id/exit_on_idle_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exit_on_idle"
+        android:layout_marginRight="@dimen/margin_std"
+        app:layout_constraintRight_toLeftOf="@+id/server_url"
+        app:layout_constraintBaseline_toBaselineOf="@id/exit_on_idle" />
+
+    <Spinner
+        android:id="@+id/exit_on_idle"
+        android:layout_width="@dimen/edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_std"
+        android:entries="@array/idle_timeouts"
+        app:layout_constraintTop_toBottomOf="@+id/notify_sharing"
+        app:layout_constraintLeft_toLeftOf="@+id/server_url"
+        />
+
+    <TextView
         android:visibility="gone"
         android:id="@+id/test_src_ip_label"
         android:layout_width="wrap_content"
@@ -139,7 +158,7 @@
         android:layout_width="@dimen/edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
-        app:layout_constraintTop_toBottomOf="@+id/notify_sharing"
+        app:layout_constraintTop_toBottomOf="@+id/exit_on_idle"
         app:layout_constraintLeft_toLeftOf="@+id/server_url"/>
 
 

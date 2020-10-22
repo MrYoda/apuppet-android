@@ -88,6 +88,13 @@ public class SharingEngineJanus extends SharingEngine {
                             }
 
                             @Override
+                            public void onPing() {
+                                if (eventListener != null) {
+                                    eventListener.onPing();
+                                }
+                            }
+
+                            @Override
                             public void onRemoteControlEvent(String event) {
                                 if (eventListener != null) {
                                     eventListener.onRemoteControlEvent(event);
@@ -165,12 +172,7 @@ public class SharingEngineJanus extends SharingEngine {
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
-                if (janusTextRoomPlugin != null) {
-                    janusTextRoomPlugin.destroy();
-                }
-                if (janusStreamingPlugin != null) {
-                    janusStreamingPlugin.destroy();
-                }
+                // Registered plugins are destroyed in janusSession.destroy()
                 if (janusSession != null) {
                     janusSession.destroy();
                 }

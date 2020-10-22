@@ -155,6 +155,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
                                 if (text.startsWith("ping,")) {
                                     String[] parts = text.split(",");
                                     sendMessage("pong," + parts[1], false);
+                                    handler.post(() -> eventListener.onPing());
                                 } else if (text.startsWith("pong,")) {
                                     // Echo from our response, do nothing
                                 } else if (eventListener != null) {
@@ -481,9 +482,29 @@ public class JanusTextRoomPlugin extends JanusPlugin {
 
     @Override
     public int destroy() {
-        if (dataChannel != null) {
+ /*       if (dataChannel != null) {
             String destroyMessage = "{\"textroom\":\"destroy\",\"room\":\"" + roomId + "\",\"permanent\":false,\"transaction\":\"" + Utils.generateTransactionId() + "\"}";
             sendToDataChannel(destroyMessage);
+        }*/
+        // DataChannel may be broken, so we destroy using HTTP
+        destroyViaHttp();
+        return Const.SUCCESS;
+    }
+
+    private int destroyViaHttp() {
+        JanusMessageRequest destroyRequest = new JanusMessageRequest("message", sessionId, getHandleId());
+        destroyRequest.setBody(new JanusMessageRequest.Body("destroy", null, roomId));
+        destroyRequest.generateTransactionId();
+
+        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.sendMessage(sessionId, getHandleId(), destroyRequest), "destroy textroom");
+        if (response == null) {
+            errorReason = "Network error";
+            return Const.NETWORK_ERROR;
+        }
+        if (response.body() == null || !response.body().getJanus().equalsIgnoreCase("success")) {
+            errorReason = "Server error";
+            Log.w(Const.LOG_TAG, "Wrong server response: " + response.body().toString());
+            return Const.SERVER_ERROR;
         }
         return Const.SUCCESS;
     }

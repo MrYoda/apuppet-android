@@ -10,12 +10,21 @@ public class JanusMessageRequest extends JanusPluginRequest {
         private String request;
         private String id;
 
+        // For textroom messages
+        private String room;
+
         public Body() {
         }
 
         public Body(String request, String id) {
             this.request = request;
             this.id = id;
+        }
+
+        public Body(String request, String id, String room) {
+            this.request = request;
+            this.id = id;
+            this.room = room;
         }
 
         public String getRequest() {
@@ -32,6 +41,14 @@ public class JanusMessageRequest extends JanusPluginRequest {
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public String getRoom() {
+            return room;
+        }
+
+        public void setRoom(String room) {
+            this.room = room;
         }
     }
 

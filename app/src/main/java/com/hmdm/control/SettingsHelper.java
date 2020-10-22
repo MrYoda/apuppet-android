@@ -18,6 +18,8 @@ public class SettingsHelper {
     public static final String KEY_TEST_DST_IP = "dst_ip";
     public static final String KEY_VIDEO_SCALE = "video_scale";
     public static final String KEY_NOTIFY_SHARING = "notify_sharing";
+    public static final String KEY_IDLE_TIMEOUT = "idle_timeout";
+    public static final String KEY_PING_TIMEOUT = "session_timeout";
 
     private SharedPreferences sharedPreferences;
 

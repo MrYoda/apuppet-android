@@ -4,6 +4,8 @@ public class Const {
     public static final String LOG_TAG = "com.hmdm.Control";
     public static final int DEFAULT_BITRATE = 256000;
     public static final int DEFAULT_FRAME_RATE = 10;
+    public static final int DEFAULT_IDLE_TIMEOUT = 120;
+    public static final int DEFAULT_PING_TIMEOUT = 20;
 
     public static final int REQUEST_SETTINGS = 1000;
     public static final int REQUEST_PERMISSION_AUDIO = 1001;

@@ -78,6 +78,7 @@ public abstract class SharingEngine {
     public interface EventListener {
         void onStartSharing(String username);
         void onStopSharing();
+        void onPing();
         void onRemoteControlEvent(String event);
     }
 

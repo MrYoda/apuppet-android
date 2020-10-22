@@ -21,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private static final int[] bitrates = {128000, 256000, 512000, 768000, 1024000};
     private static final int[] frame_rates = {5, 10, 15, 20};
+    private static final int[] idle_timeouts = {60, 120, 300, 600, 1800, 0};
 
     private EditText editTextServerUrl;
     private CheckBox checkBoxTranslateAudio;
@@ -28,6 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Spinner spinnerFrameRate;
     private EditText editTextDeviceName;
     private CheckBox checkBoxNotifySharing;
+    private Spinner spinnerIdleTimeout;
 
     // For test purposes!
     private EditText editTextTestSrcIp;
@@ -52,6 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
         spinnerFrameRate = findViewById(R.id.frame_rate);
         editTextDeviceName = findViewById(R.id.device_name);
         checkBoxNotifySharing = findViewById(R.id.notify_sharing);
+        spinnerIdleTimeout = findViewById(R.id.exit_on_idle);
 
         editTextTestSrcIp = findViewById(R.id.test_src_ip);
         editTextTestDstIp = findViewById(R.id.test_dst_ip);
@@ -149,6 +152,10 @@ public class SettingsActivity extends AppCompatActivity {
         editTextDeviceName.setText(settingsHelper.getString(SettingsHelper.KEY_DEVICE_NAME));
         editTextTestDstIp.setText(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP));
         checkBoxNotifySharing.setChecked(settingsHelper.getBoolean(SettingsHelper.KEY_NOTIFY_SHARING));
+        int idleTimeout = getIndex(idle_timeouts, settingsHelper.getInt(SettingsHelper.KEY_IDLE_TIMEOUT));
+        if (idleTimeout >= 0) {
+            spinnerIdleTimeout.setSelection(idleTimeout);
+        }
     }
 
     private boolean saveSettings() {
@@ -176,6 +183,7 @@ public class SettingsActivity extends AppCompatActivity {
         settingsHelper.setString(SettingsHelper.KEY_DEVICE_NAME, deviceName);
         settingsHelper.setString(SettingsHelper.KEY_TEST_DST_IP, editTextTestDstIp.getText().toString());
         settingsHelper.setBoolean(SettingsHelper.KEY_NOTIFY_SHARING, checkBoxNotifySharing.isChecked());
+        settingsHelper.setInt(SettingsHelper.KEY_IDLE_TIMEOUT, idle_timeouts[spinnerIdleTimeout.getSelectedItemPosition()]);
         return true;
     }
 
@@ -198,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (!editTextTestDstIp.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_TEST_DST_IP))) {
             return true;
         }
-        // No need to reconnect when KEY_NOTIFY_SHARING is changed
+        // No need to reconnect when KEY_NOTIFY_SHARING or KEY_IDLE_TIMEOUT are changed
         return false;
     }
 
