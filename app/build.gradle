@@ -15,7 +15,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Default server URL (including last "/", for example: https://srv.apuppet.org/rtp-web-admin/ )
+        // Default server URL (including last "/", for example: https://srv.apuppet.org/web-admin/ )
         // Leave empty if you do not need to preconfigure any server URL
         buildConfigField("String", "DEFAULT_SERVER_URL", "\"\"")
         // Default server secret (leave empty if no secret should be preconfigured;
