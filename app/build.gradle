@@ -10,13 +10,17 @@ android {
         applicationId "com.hmdm.control"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 14
-        versionName "1.14"
+        versionCode 15
+        versionName "1.15"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Default server URL
-        buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://srv.apuppet.org/rtp-web-admin/\"")
+        // Default server URL (including last "/", for example: https://srv.apuppet.org/rtp-web-admin/ )
+        // Leave empty if you do not need to preconfigure any server URL
+        buildConfigField("String", "DEFAULT_SERVER_URL", "\"\"")
+        // Default server secret (leave empty if no secret should be preconfigured;
+        // secret is required to connect to the server)
+        buildConfigField("String", "DEFAULT_SECRET", "\"\"")
 
         // Build variant displayed on the "About" screen
         buildConfigField("String", "VARIANT", "\"opensource\"")

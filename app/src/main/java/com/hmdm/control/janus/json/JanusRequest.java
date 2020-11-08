@@ -10,12 +10,14 @@ public class JanusRequest {
     private String janus;
     private String session_id;
     private String transaction;
+    private String apisecret;
 
     public JanusRequest() {
     }
 
-    public JanusRequest(String action, boolean generateTransactionId) {
+    public JanusRequest(String secret, String action, boolean generateTransactionId) {
         janus = action;
+        apisecret = secret;
         if (generateTransactionId) {
             generateTransactionId();
         }
@@ -47,5 +49,13 @@ public class JanusRequest {
 
     public void setTransaction(String transaction) {
         this.transaction = transaction;
+    }
+
+    public String getApisecret() {
+        return apisecret;
+    }
+
+    public void setApisecret(String apisecret) {
+        this.apisecret = apisecret;
     }
 }

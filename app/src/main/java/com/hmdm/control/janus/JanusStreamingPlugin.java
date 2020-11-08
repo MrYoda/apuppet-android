@@ -36,7 +36,7 @@ public class JanusStreamingPlugin extends JanusPlugin {
         this.streamingId = streamingId;
         this.password = password;
 
-        JanusStreamingCreateRequest createRequest = new JanusStreamingCreateRequest("message", sessionId, getHandleId());
+        JanusStreamingCreateRequest createRequest = new JanusStreamingCreateRequest(secret, "message", sessionId, getHandleId());
         JanusStreamingCreateRequest.Body body = new JanusStreamingCreateRequest.Body();
         body.setRequest("create");
         body.setType("rtp");
@@ -85,7 +85,7 @@ public class JanusStreamingPlugin extends JanusPlugin {
 
     @Override
     public int destroy() {
-        JanusMessageRequest destroyRequest = new JanusMessageRequest("message", sessionId, getHandleId());
+        JanusMessageRequest destroyRequest = new JanusMessageRequest(secret, "message", sessionId, getHandleId());
         destroyRequest.setBody(new JanusMessageRequest.Body("destroy", streamingId));
         destroyRequest.generateTransactionId();
 

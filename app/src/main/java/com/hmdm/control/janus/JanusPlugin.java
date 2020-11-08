@@ -8,6 +8,7 @@ import com.hmdm.control.janus.server.JanusServerApiFactory;
 
 public abstract class JanusPlugin {
     protected JanusServerApi apiInstance;
+    protected String secret;
     protected String sessionId;
     protected String handleId;
     protected String errorReason;
@@ -37,6 +38,7 @@ public abstract class JanusPlugin {
 
     public void init(Context context) {
         apiInstance = JanusServerApiFactory.getApiInstance(context);
+        secret = JanusServerApiFactory.getSecret(context);
     }
 
     public void onWebRtcUp(final Context context) {

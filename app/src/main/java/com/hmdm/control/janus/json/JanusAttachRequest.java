@@ -6,8 +6,8 @@ public class JanusAttachRequest extends JanusRequest {
     public JanusAttachRequest() {
     }
 
-    public JanusAttachRequest(String pluginName) {
-        super("attach", true);
+    public JanusAttachRequest(String secret, String pluginName) {
+        super(secret, "attach", true);
         this.plugin = pluginName;
     }
 

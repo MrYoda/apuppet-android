@@ -18,10 +18,15 @@
     <string name="password">Password</string>
     <string name="server_url">Server URL</string>
     <string name="server_url_hint">Type URL here</string>
+    <string name="secret">Secret</string>
+    <string name="use_default">Use defaults</string>
+    <string name="use_default_hint">Reset the server URL and secret to their default values?</string>
+    <string name="button_use_default">Use defaults</string>
     <string name="translate_audio">Translate audio</string>
     <string name="bitrate">Bitrate</string>
     <string name="frame_rate">Frame rate</string>
     <string name="enter_correct_url">Please enter a correct server URL starting with http:// or https://</string>
+    <string name="enter_secret">Please enter a non-empty secret</string>
     <string name="enter_device_name">Please enter a non-empty device name</string>
     <string name="accessibility_hint">This app uses accessibility service to simulate user interface events. The accessibility permissions screen will now open. Please grant accessibility permissions to the "aPuppet" app.</string>
     <string name="continue_button">Continue</string>

@@ -10,8 +10,8 @@ public class JanusJsepRequest extends JanusMessageRequest {
     public JanusJsepRequest() {
     }
 
-    public JanusJsepRequest(String janus, String sessionId, String handleId) {
-        super(janus, sessionId, handleId);
+    public JanusJsepRequest(String secret, String janus, String sessionId, String handleId) {
+        super(secret, janus, sessionId, handleId);
     }
 
     private Jsep jsep;

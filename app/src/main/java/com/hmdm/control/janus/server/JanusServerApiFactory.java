@@ -15,9 +15,11 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class JanusServerApiFactory {
     private static JanusServerApi apiInstance;
+    private static String secret;
 
     public static void resetApiInstance() {
         apiInstance = null;
+        secret = null;
     }
 
     public static JanusServerApi getApiInstance(Context context) {
@@ -25,6 +27,13 @@ public class JanusServerApiFactory {
             apiInstance = createServerService(SettingsHelper.getInstance(context).getString(SettingsHelper.KEY_SERVER_URL));
         }
         return apiInstance;
+    }
+
+    public static String getSecret(Context context) {
+         if (secret == null) {
+             secret = SettingsHelper.getInstance(context).getString(SettingsHelper.KEY_SECRET);
+         }
+         return secret;
     }
 
     private static JanusServerApi createServerService( String baseUrl ) {

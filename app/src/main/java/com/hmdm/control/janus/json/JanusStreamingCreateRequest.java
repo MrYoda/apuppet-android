@@ -179,8 +179,8 @@ public class JanusStreamingCreateRequest extends JanusPluginRequest {
     public JanusStreamingCreateRequest() {
     }
 
-    public JanusStreamingCreateRequest(String janus, String sessionId, String handleId) {
-        super(janus,sessionId, handleId);
+    public JanusStreamingCreateRequest(String secret, String janus, String sessionId, String handleId) {
+        super(secret, janus, sessionId, handleId);
     }
 
     public Body getBody() {

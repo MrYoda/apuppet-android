@@ -57,8 +57,8 @@ public class JanusMessageRequest extends JanusPluginRequest {
     public JanusMessageRequest() {
     }
 
-    public JanusMessageRequest(String janus, String sessionId, String handleId) {
-        super(janus, sessionId, handleId);
+    public JanusMessageRequest(String secret, String janus, String sessionId, String handleId) {
+        super(secret, janus, sessionId, handleId);
     }
 
     public Body getBody() {

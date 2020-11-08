@@ -10,7 +10,9 @@ public class SettingsHelper {
     private static final String PREFERENCES = "com.hmdm.control.PREFERENCES";
 
     // Data keys
+    public static final String KEY_USE_DEFAULT = "use_default";
     public static final String KEY_SERVER_URL = "server_url";
+    public static final String KEY_SECRET = "secret";
     public static final String KEY_DEVICE_NAME = "device_name";
     public static final String KEY_TRANSLATE_AUDIO = "translate_audio";
     public static final String KEY_BITRATE = "bitrate";

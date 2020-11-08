@@ -221,7 +221,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
 
 
     private JanusJsepRequest createJsepRequest(String requestType) {
-        JanusJsepRequest request = new JanusJsepRequest("message", getSessionId(), getHandleId());
+        JanusJsepRequest request = new JanusJsepRequest(secret, "message", getSessionId(), getHandleId());
         request.setBody(new JanusMessageRequest.Body(requestType, null));
         return request;
     }
@@ -492,7 +492,7 @@ public class JanusTextRoomPlugin extends JanusPlugin {
     }
 
     private int destroyViaHttp() {
-        JanusMessageRequest destroyRequest = new JanusMessageRequest("message", sessionId, getHandleId());
+        JanusMessageRequest destroyRequest = new JanusMessageRequest(secret, "message", sessionId, getHandleId());
         destroyRequest.setBody(new JanusMessageRequest.Body("destroy", null, roomId));
         destroyRequest.generateTransactionId();
 

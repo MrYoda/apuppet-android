@@ -168,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
         if (settingsHelper.getString(SettingsHelper.KEY_SERVER_URL) == null) {
             // Not configured yet
             settingsHelper.setString(SettingsHelper.KEY_SERVER_URL, BuildConfig.DEFAULT_SERVER_URL);
+            settingsHelper.setString(SettingsHelper.KEY_SECRET, BuildConfig.DEFAULT_SECRET);
+            settingsHelper.setBoolean(SettingsHelper.KEY_USE_DEFAULT, !BuildConfig.DEFAULT_SECRET.equals(""));
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, Const.REQUEST_SETTINGS);
             return;

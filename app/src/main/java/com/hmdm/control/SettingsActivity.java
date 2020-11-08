@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -24,6 +25,8 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int[] idle_timeouts = {60, 120, 300, 600, 1800, 0};
 
     private EditText editTextServerUrl;
+    private EditText editTextSecret;
+    private CheckBox checkBoxUseDefault;
     private CheckBox checkBoxTranslateAudio;
     private Spinner spinnerBitrate;
     private Spinner spinnerFrameRate;
@@ -49,6 +52,8 @@ public class SettingsActivity extends AppCompatActivity {
         settingsHelper = SettingsHelper.getInstance(this);
 
         editTextServerUrl = findViewById(R.id.server_url);
+        editTextSecret = findViewById(R.id.secret);
+        checkBoxUseDefault = findViewById(R.id.use_default);
         checkBoxTranslateAudio = findViewById(R.id.translate_audio);
         spinnerBitrate = findViewById(R.id.bitrate);
         spinnerFrameRate = findViewById(R.id.frame_rate);
@@ -60,6 +65,30 @@ public class SettingsActivity extends AppCompatActivity {
         editTextTestDstIp = findViewById(R.id.test_dst_ip);
         editTextTestSrcIp.setText(Utils.getLocalIpAddress(this));
 
+        checkBoxUseDefault.setVisibility(BuildConfig.DEFAULT_SECRET.equals("") ? View.GONE : View.VISIBLE);
+        checkBoxUseDefault.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateControls();
+            if (isChecked && (!editTextServerUrl.getText().toString().equals(BuildConfig.DEFAULT_SERVER_URL) ||
+                    !editTextSecret.getText().toString().equals(BuildConfig.DEFAULT_SECRET))) {
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setMessage(R.string.use_default_hint)
+                        .setPositiveButton(R.string.button_use_default, (dialog, which) -> {
+                            editTextServerUrl.setText(BuildConfig.DEFAULT_SERVER_URL);
+                            editTextSecret.setText(BuildConfig.DEFAULT_SECRET);
+                            updateControls();
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                checkBoxUseDefault.setChecked(false);
+                                updateControls();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        });
+
         checkBoxTranslateAudio.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 if (ContextCompat.checkSelfPermission(SettingsActivity.this, Manifest.permission.RECORD_AUDIO) !=
@@ -68,17 +97,9 @@ public class SettingsActivity extends AppCompatActivity {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
                         new AlertDialog.Builder(SettingsActivity.this)
                                 .setMessage(R.string.audio_permission_request)
-                                .setPositiveButton(R.string.continue_button, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
-                                                Const.REQUEST_PERMISSION_AUDIO);
-                                    }
-                                })
-                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
+                                .setPositiveButton(R.string.continue_button, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                                        Const.REQUEST_PERMISSION_AUDIO))
+                                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                                 })
                                 .setCancelable(false)
                                 .create()
@@ -140,6 +161,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void loadSettings() {
         editTextServerUrl.setText(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL));
+        editTextSecret.setText(settingsHelper.getString(SettingsHelper.KEY_SECRET));
+        checkBoxUseDefault.setChecked(settingsHelper.getBoolean(SettingsHelper.KEY_USE_DEFAULT));
         checkBoxTranslateAudio.setChecked(settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO));
         int bitrate = getIndex(bitrates, settingsHelper.getInt(SettingsHelper.KEY_BITRATE));
         if (bitrate >= 0) {
@@ -156,12 +179,18 @@ public class SettingsActivity extends AppCompatActivity {
         if (idleTimeout >= 0) {
             spinnerIdleTimeout.setSelection(idleTimeout);
         }
+        updateControls();
     }
 
     private boolean saveSettings() {
         String serverUrl = editTextServerUrl.getText().toString();
         if (!serverUrl.startsWith("http://") && !serverUrl.startsWith("https://")) {
             Toast.makeText(this, R.string.enter_correct_url, Toast.LENGTH_LONG).show();
+            return false;
+        }
+        String secret = editTextSecret.getText().toString();
+        if (secret.trim().equals("")) {
+            Toast.makeText(this, R.string.enter_secret, Toast.LENGTH_LONG).show();
             return false;
         }
         String deviceName = editTextDeviceName.getText().toString();
@@ -177,6 +206,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         settingsHelper.setString(SettingsHelper.KEY_SERVER_URL, serverUrl);
+        settingsHelper.setString(SettingsHelper.KEY_SECRET, secret);
+        settingsHelper.setBoolean(SettingsHelper.KEY_USE_DEFAULT, checkBoxUseDefault.isChecked());
         settingsHelper.setBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO, checkBoxTranslateAudio.isChecked());
         settingsHelper.setInt(SettingsHelper.KEY_BITRATE, bitrates[spinnerBitrate.getSelectedItemPosition()]);
         settingsHelper.setInt(SettingsHelper.KEY_FRAME_RATE, frame_rates[spinnerFrameRate.getSelectedItemPosition()]);
@@ -187,8 +218,17 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
+    private void updateControls() {
+        boolean enabled = !checkBoxUseDefault.isChecked();
+        editTextServerUrl.setEnabled(enabled);
+        editTextSecret.setEnabled(enabled);
+    }
+
     private boolean areSettingsChanged() {
         if (!editTextServerUrl.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_SERVER_URL))) {
+            return true;
+        }
+        if (!editTextSecret.getText().toString().equals(settingsHelper.getString(SettingsHelper.KEY_SECRET))) {
             return true;
         }
         if (checkBoxTranslateAudio.isChecked() != settingsHelper.getBoolean(SettingsHelper.KEY_TRANSLATE_AUDIO)) {

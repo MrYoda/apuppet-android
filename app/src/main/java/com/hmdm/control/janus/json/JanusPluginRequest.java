@@ -12,8 +12,8 @@ public class JanusPluginRequest extends JanusRequest {
     public JanusPluginRequest() {
     }
 
-    public JanusPluginRequest(String janus, String sessionId, String handleId) {
-        super(janus, true);
+    public JanusPluginRequest(String secret, String janus, String sessionId, String handleId) {
+        super(secret, janus, true);
         setSession_id(sessionId);
         setHandle_id(handleId);
     }

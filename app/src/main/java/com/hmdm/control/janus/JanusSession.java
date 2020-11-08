@@ -22,12 +22,14 @@ import retrofit2.Response;
 
 public class JanusSession {
     private JanusServerApi apiInstance;
+    private String secret;
     private String sessionId;
     private String errorReason;
     private Map<String,JanusPlugin> pluginMap = new HashMap<>();
 
     public void init(Context context) {
         apiInstance = JanusServerApiFactory.getApiInstance(context);
+        secret = JanusServerApiFactory.getSecret(context);
     }
 
     public String getSessionId() {
@@ -61,7 +63,7 @@ public class JanusSession {
     // Must be run in the background thread
     public int create() {
         errorReason = null;
-        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.createSession(new JanusRequest("create", true)), "create session");
+        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.createSession(new JanusRequest(secret, "create", true)), "create session");
         if (response == null) {
             errorReason = "Network error";
             return Const.NETWORK_ERROR;
@@ -78,7 +80,7 @@ public class JanusSession {
     }
 
     public int attachPlugin(JanusPlugin plugin) {
-        JanusAttachRequest attachRequest = new JanusAttachRequest(plugin.getName());
+        JanusAttachRequest attachRequest = new JanusAttachRequest(secret, plugin.getName());
         Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.attachPlugin(sessionId, attachRequest), "attach textroom");
         if (response == null) {
             errorReason = "Network error";
@@ -122,7 +124,7 @@ public class JanusSession {
             entry.getValue().destroy();
         }
 
-        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.destroySession(sessionId, new JanusRequest("destroy", true)), "create session");
+        Response<JanusResponse> response = ServerApiHelper.execute(apiInstance.destroySession(sessionId, new JanusRequest(secret, "destroy", true)), "create session");
         sessionId = null;
         if (response == null) {
             errorReason = "Network error";
