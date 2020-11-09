@@ -1,11 +1,11 @@
 package com.hmdm.control.janus.server;
 
 import com.hmdm.control.janus.json.JanusAttachRequest;
+import com.hmdm.control.janus.json.JanusJsepRequest;
 import com.hmdm.control.janus.json.JanusMessageRequest;
 import com.hmdm.control.janus.json.JanusPollResponse;
 import com.hmdm.control.janus.json.JanusRequest;
 import com.hmdm.control.janus.json.JanusResponse;
-import com.hmdm.control.janus.json.JanusJsepRequest;
 import com.hmdm.control.janus.json.JanusStreamingCreateRequest;
 import com.hmdm.control.janus.json.JanusStreamingCreateResponse;
 
@@ -15,6 +15,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface JanusServerApi {
 
@@ -43,6 +44,6 @@ public interface JanusServerApi {
     Call<JanusResponse> destroySession(@Path("session") String sessionId, @Body JanusRequest request);
 
     @GET("/janus/{session}")
-    Call<JanusPollResponse> poll(@Path("session") String sessionId);
+    Call<JanusPollResponse> poll(@Path("session") String sessionId, @Query("apisecret") String secret);
 
 }

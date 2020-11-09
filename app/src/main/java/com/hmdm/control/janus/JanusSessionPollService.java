@@ -21,6 +21,7 @@ public class JanusSessionPollService extends Service {
     private String session;
 
     private JanusServerApi apiInstance;
+    private String secret;
     Call<JanusPollResponse> currentCall;
 
     @Nullable
@@ -38,6 +39,7 @@ public class JanusSessionPollService extends Service {
 
         if (state == Const.STATE_DISCONNECTED) {
             apiInstance = JanusServerApiFactory.getApiInstance(this);
+            secret = JanusServerApiFactory.getSecret(this);
 
             // Start polling
             state = Const.STATE_CONNECTED;
@@ -51,7 +53,7 @@ public class JanusSessionPollService extends Service {
             @Override
             public void run() {
                 while (true) {
-                    currentCall = apiInstance.poll(session);
+                    currentCall = apiInstance.poll(session, secret);
                     Response<JanusPollResponse> response = ServerApiHelper.execute(currentCall, "poll session");
                     if (response == null) {
                         if (state == Const.STATE_DISCONNECTING) {
