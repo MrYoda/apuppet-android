@@ -32,6 +32,10 @@ public class JanusSessionPollService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            // Exit the app, let's just finish
+            return Service.START_NOT_STICKY;
+        }
         String session = intent.getStringExtra(Const.EXTRA_SESSION);
         if (session != null) {
             this.session = session;

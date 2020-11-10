@@ -17,7 +17,7 @@
 
     <EditText
         android:id="@+id/server_url"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:hint="@string/server_url_hint"
         app:layout_constraintTop_toTopOf="parent"
@@ -39,7 +39,7 @@
     <EditText
         android:id="@+id/secret"
         android:inputType="textPassword"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         app:layout_constraintTop_toBottomOf="@+id/server_url"
@@ -75,7 +75,7 @@
 
     <CheckBox
         android:id="@+id/translate_audio"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         android:visibility="gone"
@@ -93,7 +93,7 @@
 
     <Spinner
         android:id="@+id/bitrate"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         android:entries="@array/bitrates"
@@ -113,7 +113,7 @@
 
     <Spinner
         android:id="@+id/frame_rate"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         android:entries="@array/frame_rates"
@@ -132,7 +132,7 @@
 
     <EditText
         android:id="@+id/device_name"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:hint="@string/device_name_hint"
         android:layout_marginTop="@dimen/margin_std"
@@ -168,7 +168,7 @@
 
     <Spinner
         android:id="@+id/exit_on_idle"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         android:entries="@array/idle_timeouts"
@@ -191,7 +191,7 @@
         android:visibility="gone"
         android:id="@+id/test_src_ip"
         android:editable="false"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         app:layout_constraintTop_toBottomOf="@+id/exit_on_idle"
@@ -212,7 +212,7 @@
         android:visibility="gone"
         android:id="@+id/test_dst_ip"
         android:hint="@string/dst_ip_hint"
-        android:layout_width="@dimen/edit_text_width"
+        android:layout_width="@dimen/settings_edit_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_std"
         app:layout_constraintTop_toBottomOf="@+id/test_src_ip"

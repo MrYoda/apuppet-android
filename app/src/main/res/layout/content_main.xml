@@ -59,7 +59,8 @@
 
         <EditText
             android:id="@+id/session_id_edit"
-            android:layout_width="@dimen/edit_text_width"
+            android:layout_width="@dimen/main_edit_text_width"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:layout_height="wrap_content"
             android:editable="false"
             android:textIsSelectable="true"
@@ -80,7 +81,8 @@
 
         <EditText
             android:id="@+id/password_edit"
-            android:layout_width="@dimen/edit_text_width"
+            android:layout_width="@dimen/main_edit_text_width"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:layout_height="wrap_content"
             android:editable="false"
             android:textIsSelectable="true"
