@@ -1,6 +1,6 @@
 # aPuppet: free and open source remote control of Android devices
 
-This is the Android application - agent for sharing the Android device screen, sending the screencast to the server, and playing gestures sent by the user controlling the device.
+This is the agent application for sharing the Android device screen, sending the screencast to the server, and playing gestures sent by the user controlling the device.
 
 aPuppet website: https://apuppet.org
 
@@ -15,7 +15,7 @@ Since you're interested in the remote control of Android devices, consider using
 The aPuppet Premium:
 
 * is seamlessly integrated into Headwind MDM as a module;
-* automatically starts by a command from the remote server;
+* automatically starts by executing a command from the remote server;
 * doesn't require user interaction and is suitable for kiosk devices;
 * supports any HTTPS certificates.
 
