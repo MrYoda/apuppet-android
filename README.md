@@ -1,6 +1,6 @@
 # aPuppet: free and open source remote control of Android devices
 
-This is the agent application for sharing the Android device screen, sending the screencast to the server, and playing gestures sent by the user controlling the device.
+This is the agent application for sharing the Android device screen, sending the screencast to the server, and playing gestures sent by a person who controls the device.
 
 aPuppet website: https://apuppet.org
 
@@ -34,5 +34,7 @@ While sharing the screen, the application displays a flashing green dot in the t
 ## Compatibility
 
 aPuppet is using native Android API and is therefore compatible with all Android devices and builds since Android 7 and above. AOSP and custom Android OS are also supported.
+
+The server can be installed on any Linux system (tested on Ubuntu Linux 18.04 and above). The manager application is web-based. It works in any browser supporting WebRTC and doesn't require installation of any desktop software.
 
 More details about the software and purchasing the premium version can be found at https://apuppet.org.
