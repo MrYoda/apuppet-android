@@ -1,6 +1,7 @@
 package com.hmdm.control;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,6 +45,10 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private Handler handler = new Handler();
     private int overlayDotAlpha;
     private int overlayDotDirection = 1;
+
+    private Dialog exitOnIdleDialog;
+    private int exitCounter;
+    private static final int EXIT_PROMPT_SEC = 10;
 
     private static final int OVERLAY_DOT_ANIMATION_INCREMENT = 20;
     private static final int OVERLAY_DOT_ANIMATION_DELAY = 200;
@@ -476,23 +481,51 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
     private void scheduleExitOnIdle() {
         int exitOnIdleTimeout = settingsHelper.getInt(SettingsHelper.KEY_IDLE_TIMEOUT);
         if (exitOnIdleTimeout > 0) {
-            handler.postDelayed(exitOnIdleRunnable, exitOnIdleTimeout * 1000);
+            exitCounter = EXIT_PROMPT_SEC;
+            handler.postDelayed(warningOnIdleRunnable, exitOnIdleTimeout * 1000);
             Log.d(Const.LOG_TAG, "Scheduling exit in " + (exitOnIdleTimeout * 1000) + " sec");
         }
     }
 
     private void cancelExitOnIdle() {
         Log.d(Const.LOG_TAG, "Cancelling scheduled exit");
-        handler.removeCallbacks(exitOnIdleRunnable);
+        handler.removeCallbacks(warningOnIdleRunnable);
+        handler.removeCallbacks(exitRunnable);
     }
 
-    private Runnable exitOnIdleRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(MainActivity.this, R.string.app_idle_exit, Toast.LENGTH_LONG).show();
+    private Runnable exitRunnable = () -> {
+        exitCounter--;
+        if (exitCounter > 0) {
+            TextView messageView = exitOnIdleDialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setText(MainActivity.this.getResources().getString(R.string.app_idle_warning, exitCounter));
+            }
+            scheduleExitRunnable();
+
+        } else {
             gracefulExit();
         }
     };
+
+    private Runnable warningOnIdleRunnable = () -> {
+         exitOnIdleDialog = new AlertDialog.Builder(MainActivity.this)
+                .setMessage(MainActivity.this.getResources().getString(R.string.app_idle_warning, exitCounter))
+                .setPositiveButton(R.string.button_exit, (dialog1, which) -> {
+                    gracefulExit();
+                })
+                .setNegativeButton(R.string.button_keep_idle, (dialog1, which) -> {
+                    scheduleExitOnIdle();
+                    handler.removeCallbacks(exitRunnable);
+                    dialog1.dismiss();
+                })
+                .create();
+        exitOnIdleDialog.show();
+        scheduleExitRunnable();
+    };
+
+    private void scheduleExitRunnable() {
+        handler.postDelayed(exitRunnable, 1000);
+    }
 
     private void scheduleSharingTimeout() {
         int pingTimeout = settingsHelper.getInt(SettingsHelper.KEY_PING_TIMEOUT);

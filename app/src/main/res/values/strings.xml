@@ -57,7 +57,10 @@
     <string name="send_link_message">Please connect to my Android device (%s) remotely using the aPuppet service: %s</string>
     <string name="send_link_failed">Failed to share a link, please contact the technical support!</string>
     <string name="send_link_chooser">How to send a link?</string>
+    <string name="app_idle_warning">The application is idle and will be stopped in %d sec!</string>
     <string name="app_idle_exit">The application is stopped because it\'s idle!</string>
+    <string name="button_exit">Exit</string>
+    <string name="button_keep_idle">Keep running</string>
     <string name="app_sharing_session_ping_timeout">The remote control session is stopped because there\'s no connection with the server!</string>
     <string name="exit_on_idle">Exit if idle</string>
 
