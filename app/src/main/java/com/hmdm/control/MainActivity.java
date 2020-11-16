@@ -518,6 +518,7 @@ public class MainActivity extends AppCompatActivity implements SharingEngineJanu
                     handler.removeCallbacks(exitRunnable);
                     dialog1.dismiss();
                 })
+                .setCancelable(false)
                 .create();
         exitOnIdleDialog.show();
         scheduleExitRunnable();
